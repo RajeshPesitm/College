@@ -1,0 +1,121 @@
+/* Step 1: Reset some basics */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: white;
+  color: black;
+  line-height: 1.5;
+}
+
+header.navbar {
+  background-color: blue; /* Navy-ish blue */
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.nav-left, .nav-right {
+  display: flex;
+  align-items: center;
+}
+
+.nav-right a.logout-btn {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 8px 15px;
+  border: 1px solid white;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.nav-right a.logout-btn:hover {
+  background-color: white;
+  color: #0059b3;
+}
+
+.menu-btn {
+  background-color: #004080; /* Darker blue */
+  border: none;
+  color: white;
+  padding: 25px 15px;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.menu-btn:hover {
+  background-color: #0066cc;
+}
+
+.dropdown {
+  position: relative; /* for dropdown-content absolute positioning */
+}
+
+.dropdown-content {
+  display: none; /* hidden initially */
+  position: absolute;
+  top: 40px; /* below the button */
+  left: 0;
+  background-color: white;
+  min-width: 180px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  border-radius: 4px;
+  z-index: 1001;
+}
+
+.dropdown-content a {
+  display: block;
+  padding: 10px 15px;
+  color: #333;
+  text-decoration: none;
+  border-bottom: 1px solid #ddd;
+}
+
+.dropdown-content a:last-child {
+  border-bottom: none;
+}
+
+.dropdown-content a:hover {
+  background-color: #0059b3;
+  color: white;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+main {
+  padding: 40px 20px;
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.main-content h2 {
+  margin-bottom: 15px;
+  color: #0059b3;
+}
+
+.main-content p {
+  font-size: 16px;
+}
+
+
+footer.footer {
+  height: 50px; /* reserve space */
+  background-color: #e0e0e0;
+}
