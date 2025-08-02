@@ -1,0 +1,23 @@
+<p>navbar works!</p>
+<header class="navbar">
+  <div class="nav-left">
+    <div class="dropdown">
+      <button class="menu-btn" (click)="toggleMenu()">
+        Menu
+      </button>
+      <div class="dropdown-content" [class.show]="menuOpen">
+        <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+        <a routerLink="/students" routerLinkActive="active">Students</a>
+        <a routerLink="/dashboard" routerLinkActive="active">Faculties</a>
+        <a routerLink="/students" routerLinkActive="active">Classrooms & Labs</a>
+        <a routerLink="/dashboard" routerLinkActive="active">Semesters</a>
+        <a routerLink="/students" routerLinkActive="active">Subject Allotment</a>
+        <a routerLink="/dashboard" routerLinkActive="active">Time Table</a>
+        <a routerLink="/students" routerLinkActive="active">COE</a>
+      </div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <a href="#" class="logout-btn">Logout</a>
+  </div>
+</header>

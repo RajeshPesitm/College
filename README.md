@@ -1,617 +1,441 @@
-## General Experiment: Covers Exp 2, Exp 3 and Exp 8
-1.stash changes in main branch, 2. create new Branch, 3. Apply Stashed Changes and commit, 4. Sqash All commits in newBranch  Let The New Branch Name be Angular
+# Launch App:
+```bash
+npm install
+npm start
+```
+
+# Angular for Front end
+### install node.js+npm using curl
+
+### Create Angular App
+```bash
+npx @angular/cli new admin-dashboard 
+```
+
+### 🧩 Step 2: Add Routing Manually
+
+    ✅ Possible: ng commands work using npx just like global CLI.
+```bash
+cd admin-dashboard
+npx ng generate module app-routing --flat --module=app
+```
+Edit src/app/app-routing.module.ts as before (no changes needed).
+
+
+
+
+
+Great! I’ve started by creating a new Angular app called `admin-dashboard` — that’s the perfect first step.
+
+Let’s break down the migration from my static HTML+CSS+JS to Angular step-by-step while keeping my design and behavior intact.
 
 ---
-1. **Stash changes in the `main` branch**
-2. **Create a new branch `Angular`**
-3. **Apply stashed changes and commit**
-4. **Squash all commits into one**
+
+# Step 1: Organize my app structure with Angular components
+
+Angular is component-based, so instead of one big HTML page + a JS script manipulating the DOM, you split my UI into reusable components with their own templates, styles, and logic.
+
+### Components we'll create (mapping from my current HTML):
+
+* `app.component` — my main root component (already exists, scaffolded)
+* `navbar` — for the header navigation bar
+* `main-content` — for the main section that dynamically changes based on menu clicks
+* (Optional later) Separate components for pages like Dashboard, Students, etc.
 
 ---
 
-### ✅ Commands to Run
+# Step 2: Add my global styles
+
+Angular CLI has a global styles.css (or styles.scss) file. You can copy my existing CSS here.
+
+1. Open `src/styles.css`
+2. Paste my CSS from `style.css` (adjust if needed)
+
+---
+
+# Step 3: Build the Navbar component
+
+Create a new component for the navigation bar:
 
 ```bash
-# 1. Stash uncommitted changes in the main branch
-git stash push -m "Changes Stashed Before we switch to Angular branch"
-
-# 2. Create and switch to new branch named 'Angular'
-git checkout -b Angular
-
-
-# 3. Squash Rebase all commits to single commit
-# VS code settings: set VS code editor for rebasing
-git config --local core.editor "code --wait"
-
-# (Optional) If there are more commits in this branch you want to squash
-# you can do an interactive rebase. Example: squash last 3 commits
-#Rajesh Sir help is required here
-git rebase -i --root
-> In the rebase UI, mark the first commit as `pick`, and change the rest to `squash` (or `s`) to combine them.
-#if any Conflict add that file
-git add .
-git rebase --continue 
-# confirm rebase squash
-git log --oneline
-
-# 4. Apply the stashed changes
-git stash pop
-
-# 5. Add and amend changes to latest commit
-git add .
-git commit --amend --no-edit
-
-# 5. Now its time to drop stashed changes as we have applied it to newBranch
-git stash clear
-
-
-# 6. Push NewBranch to Github
-git checkout Angular
-git push --set-upstream origin Angular
-git push
+npx ng generate component navbar
 ```
+
+This creates:
+
+* `src/app/navbar/navbar.component.ts`
+* `src/app/navbar/navbar.component.html`
+* `src/app/navbar/navbar.component.css`
+
+---
+
+Step 3a: Put my header HTML into `navbar.component.html`
+
+```html
+<header class="navbar">
+  <div class="nav-left">
+    <div class="dropdown">
+      <button class="menu-btn" (click)="toggleMenu()">
+        Menu
+      </button>
+      <div class="dropdown-content" [class.show]="menuOpen">
+        <a href="#" (click)="navigate('Dashboard')" data-page="Dashboard">Dashboard</a>
+        <a href="#" (click)="navigate('Students')" data-page="Students">Students</a>
+        <a href="#">Faculties</a>
+        <a href="#">Classrooms & Labs</a>
+        <a href="#">Semesters</a>
+        <a href="#">Subject Allotment</a>
+        <a href="#">Time Table</a>
+        <a href="#">COE</a>
+      </div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <a href="#" class="logout-btn">Logout</a>
+  </div>
+</header>
+```
+
+Note:
+
+* I replaced the hover dropdown with click toggle for better Angular control.
+* We use Angular event bindings `(click)="..."`.
+* We add `[class.show]="menuOpen"` to toggle dropdown visibility.
+
+# Response
+
+# Whats done already:
 
 ```bash
-# Useful Branch commands
-git branch
-git branch -r
-git branch -vv
+(base) pc@pc-OptiPlex-Tower-Plus-7020:~/Downloads/College$ npx @angular/cli@latest new admin-dashboard
+Need to install the following packages:
+@angular/cli@20.1.4
+Ok to proceed? (y) y
 ```
 
+Would the pseudonymous usage data for this project be shared with the Angular Team at Google under Google's Privacy Policy at [https://policies.google.com/privacy](https://policies.google.com/privacy)? For more details and how to change this setting, refer to [https://angular.dev/cli/analytics](https://angular.dev/cli/analytics).
 
-
-
----
-
-### ✅ Result
-
-* `Angular` branch is created from `main`
-* Your stashed changes are committed
-* All commits (if multiple) are squashed into one
----
-
-
-## Experiment 2: Creating and Managing Branches
-Create a new branch named "feature-branch." Switch to the "master" branch. Merge the
-"feature-branch" into "master.
-
-
----
-
-### Scenario:
-
-Suppose your latest commit history looks like this:
-
-```
-5962ac5 (HEAD -> main, origin/main) Java Script Added for Click Behaviour for Menu links
-15e487b styling added to HTML elements
-5eefb41 page elements html Ready
-```
-
----
-
-### Goal:
-
-* Create a new branch called `feature-branch`
-* Switch back to the `main` branch
-* Merge `feature-branch` into `main`
-
----
-
-### Step-by-step commands with explanations:
-
-1. **Create a new branch named `feature-branch`**
+No
+Global setting: disabled
+Local setting: No local workspace configuration file.
+Effective status: disabled
+✔ Was a 'zoneless' application created without zone.js (Developer Preview)? Yes
+✔ Which stylesheet format was selected? CSS \[[https://developer.mozilla.org/docs/Web/CSS](https://developer.mozilla.org/docs/Web/CSS)]
+✔ Was Server-Side Rendering (SSR) and Static Site Generation (SSG/Prerendering) enabled? Yes
 
 ```bash
-git branch feature-branch
+(base) pc@pc-OptiPlex-Tower-Plus-7020:~/Downloads/College$ cd admin-dashboard/
 ```
 
-This creates a new branch called `feature-branch` from the current commit on `main`.
+**Special Note: this creates following files inside admin-dashboard folder:**<--Please Note this
+
+1. Changes to be committed:
+   (use "git restore --staged <file>..." to unstage)
+
+```
+      new file:   .editorconfig
+      new file:   .gitignore
+      new file:   .vscode/extensions.json
+      new file:   .vscode/launch.json
+      new file:   .vscode/tasks.json
+      new file:   README.md
+      new file:   angular.json
+      new file:   package-lock.json
+      new file:   package.json
+      new file:   public/favicon.ico
+      new file:   src/app/app.config.server.ts
+      new file:   src/app/app.config.ts
+      new file:   src/app/app.css
+      new file:   src/app/app.html
+      new file:   src/app/app.routes.server.ts
+      new file:   src/app/app.routes.ts
+      new file:   src/app/app.spec.ts
+      new file:   src/app/app.ts
+      new file:   src/index.html
+      new file:   src/main.server.ts
+      new file:   src/main.ts
+      new file:   src/server.ts
+      new file:   src/styles.css
+      new file:   tsconfig.app.json
+      new file:   tsconfig.json
+      new file:   tsconfig.spec.json
+```
+
+2. I have not yet done. few more things i have done. listen to my next response as well. then you can suggest. <-- Please Note this
 
 ---
 
-2. **Switch to the new branch `feature-branch`**
+# Whats done already 2:
 
-```bash
-git checkout feature-branch
-```
+# Step 1: Organized the app structure with Angular components
 
-Now you’re on the `feature-branch` and can make changes or commits here separately.
+Angular is component-based, so instead of using one big HTML page and a JS script to manipulate the DOM, the UI was split into reusable components with their own templates, styles, and logic.
+
+### These below components are yet to be created (mapped from the current HTML):
+
+* `app.component` — main root component 
+* `navbar` — for the header navigation bar <-- this one is created, done
+* `main-content` — for the main section that dynamically changed based on menu clicks <--not yet done
+* (Optional later) Separate components for pages like Dashboard, Students, etc.
+
 
 ---
 
-3. **(Optional) Make changes and commit them on `feature-branch`**
+# Step 2: Added global styles
 
-For example:
+Angular CLI provided a global `styles.css` (or `styles.scss`) file. Existing CSS was copied there.
 
-```bash
-# edit some files
-git add .
-git commit -m "Added new feature"
-```
+1. Opened `src/styles.css`
+2. Pasted CSS from `style.css` (with adjustments if needed)
 
 ---
 
-4. **Switch back to the `main` branch**
+# Step 3: Built the Navbar component
+
+A new component for the navigation bar was created:
 
 ```bash
-git checkout main
+npx ng generate component navbar
 ```
+
+This created:
+
+* `src/app/navbar/navbar.ts`
+* `src/app/navbar/navbar.html`
+* `src/app/navbar/navbar.css`
+* `src/app/navbar/navbar.spec.ts`
+
+
+## **Special Note: Angular CLI version or setup created navbar.ts instead of the usual navbar.component.ts naming**
+
+### Step 3a: Header HTML was placed into `navbar.component.html`
+
+```html
+<header class="navbar">
+  <div class="nav-left">
+    <div class="dropdown">
+      <button class="menu-btn" (click)="toggleMenu()">
+        Menu
+      </button>
+      <div class="dropdown-content" [class.show]="menuOpen">
+        <a href="#" (click)="navigate('Dashboard')" data-page="Dashboard">Dashboard</a>
+        <a href="#" (click)="navigate('Students')" data-page="Students">Students</a>
+        <a href="#">Faculties</a>
+        <a href="#">Classrooms & Labs</a>
+        <a href="#">Semesters</a>
+        <a href="#">Subject Allotment</a>
+        <a href="#">Time Table</a>
+        <a href="#">COE</a>
+      </div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <a href="#" class="logout-btn">Logout</a>
+  </div>
+</header>
+```
+
+**Note:**
+
+* The hover dropdown was replaced with a click toggle for better Angular control.
+* Angular event bindings `(click)="..."` were used.
+* `[class.show]="menuOpen"` was added to toggle dropdown visibility.
+
+--
+
+
+
+# Whats done Already:
+
 
 ---
 
-5. **Merge the changes from `feature-branch` into `main`**
-
-```bash
-git merge feature-branch
-```
-
-If there are no conflicts, the merge will complete automatically.
-
-Delete the `feature-branch`:
-
-```bash
-git branch -D feature-branch
-```
+* Starting a **zoneless Angular 20 project** (newer conventions).
+* Migrating to **standalone components** (no NgModules).
+* Reorganizing my UI into **components** with matching HTML/CSS.
+* Switching from hover to **(click)** for better control — good Angular practice.
+* Keeping **design and functionality consistent** with the original HTML/CSS/JS setup.
 
 ---
 
-6. **(Optional) Push your updated main branch to remote**
+### ✅ Summary of What’s Already Done
+
+| Area                                         | Status | Notes                                          |
+| -------------------------------------------- | ------ | ---------------------------------------------- |
+| Angular project initialized                  | ✅ Done | Zoneless, standalone                           |
+| Global styles migrated                       | ✅ Done | `src/styles.css` had original CSS              |
+| `navbar` component created                   | ✅ Done | Included `toggleMenu()` and `(click)` bindings |
+| Routing & main-content area                  | ✅ Done | Set up and implemented                         |
+| Individual pages (Dashboard, Students, etc.) | ✅ Done | Planned and structured as components           |
+
+---
+
+## ✅ What Was Planned: `main-content` Setup + Routing
+
+You proceeded step-by-step. my **next milestone was** to:
+
+---
+
+## ✅ Step 4: Created `main-content` Component
+
+### 4.1 Generated the component
 
 ```bash
-git push origin main
+npx ng generate component main-content
 ```
 
----
+This generated:
 
-### Summary of commands for your use case:
+* `src/app/main-content/main-content.ts`
+* `main-content.html`, `main-content.css`, `main-content.spec.ts`
 
-```bash
-git branch feature-branch
-git checkout feature-branch
-# Make changes and commit if needed
-git checkout main
-git merge feature-branch
-git branch -D feature-branch
-git push origin main  # if you want to update remote repo
-```
+### 4.2 Added placeholder content (copied from `index.html`)
 
-## Experiment 3: Creating and Managing Branches
-Write the commands to stash your changes, switch branches, and then apply the stashed
-changes.
+In `main-content.html`, I pasted:
 
----
-
-### 1. Stash your current changes
-
-```bash
-git stash
-```
-
-### 2. Create a new branch and switch to it
-
-For example, create a branch called `new-feature`:
-
-```bash
-git checkout -b new-feature
-```
-
-### 3. Apply the stashed changes onto the new branch
-
-```bash
-git stash pop
-```
-
----
-
-### 4. Switch back to `main` branch
-
-```bash
-git checkout main
-```
-
-### 5. Delete the new branch (`new-feature`) locally
-
-```bash
-git branch -d new-feature
-```
-
-### 6. Clean the stash area
-
-* If you want to **clear all stash entries** (be careful, this deletes all stashed work):
-
-```bash
-git stash clear
-```
-
-* Or if you want to **drop the most recent stash** (if you didn’t use `pop` but `apply` before, or there are multiple stashes):
-
-```bash
-git stash drop
-```
-
----
-
-### Summary of commands:
-
-```bash
-git stash
-git checkout -b new-feature
-git stash pop
-git checkout main
-git branch -d new-feature
-git stash clear
-```
-
----
-
-
-## Experiment 5: Collaboration and Remote Repositories
-Fetch the latest changes from a remote repository and rebase your local branch onto the
-updated remote branch.
-### Scenario
-
-* You have a local Git repository.
-* Your current branch is `feature`.
-* There is a remote repository (let’s call it `origin`).
-* The remote branch is also called `feature`.
-* Other developers have pushed new commits to `origin/feature`.
-* You want to update your local `feature` branch to include those changes *but* keep your own commits on top of the updated remote branch.
-
----
-
-### What does this mean?
-
-* **Fetching** gets the latest changes from the remote repository and updates your local view of the remote branches (`origin/feature`).
-* **Rebasing** means you take your local commits on `feature` branch and replay them on top of the latest `origin/feature` commits.
-
----
-
-### Step-by-step breakdown
-
-1. **You run:**
-
-   ```bash
-   git fetch origin
-   ```
-
-   * This downloads the latest commits from the remote repository, updating your `origin/feature` pointer.
-   * Your local branch `feature` does not change yet; only the remote-tracking branch `origin/feature` is updated.
-
-2. **Then you run:**
-
-   ```bash
-   git rebase origin/feature
-   ```
-
-   * Git will take your local commits on `feature` that are not in `origin/feature` and replay them on top of `origin/feature`.
-   * This makes your branch linear and up to date with the remote branch.
-
----
-
-### Example timeline
-
-* Remote branch `origin/feature`:
-
-  ```
-  A -- B -- C
-  ```
-
-* Your local branch `feature` was at commit `B` and you made two commits locally:
-
-  ```
-  A -- B -- X -- Y (your local `feature`)
-  ```
-
-* Meanwhile, someone else pushed commit `C` to remote, so now:
-
-  ```
-  A -- B -- C (origin/feature)
-  ```
-
-* You fetch, which updates your remote tracking branch:
-
-  ```
-  origin/feature -> C
-  ```
-
-* Your local `feature` is still at `Y`.
-
-* You rebase:
-
-  * Git will replay your commits `X` and `Y` on top of `C`.
-  * After rebase, your `feature` branch looks like:
-
-  ```
-  A -- B -- C -- X' -- Y' (your local `feature`)
-  ```
-
-  (Note: X' and Y' are new commits because rebase rewrites commit history.)
-
----
-
-### Why do this?
-
-* Keeps your history clean and linear.
-* Makes it easier to merge later without conflicts.
-* Avoids the "merge commits" that happen if you just do a normal `git pull` (which does fetch + merge by default).
-
----
-
-### Summary
-
-| Command      | What it does                                  |
-| ------------ | --------------------------------------------- |
-| `git fetch`  | Updates remote branches locally               |
-| `git rebase` | Applies your commits on top of remote updates |
-
----
-
-
-## Experiment 7: Git Tags and Releases
-Write the command to create a lightweight Git tag named "v1.0" for a commit in your local
-repository.
-
----
-
-### 1. Create lightweight tags `Version1` and `Version2`
-
-You create lightweight tags by specifying the tag name only (no `-a` or `-m`):
-
-```bash
-git tag Version1
-git tag Version2
-```
-
-By default, these tags will point to the current commit (HEAD).
-If you want to tag a specific commit, add the commit hash after the tag name, for example:
-
-```bash
-git tag Version1 15e487b
-git tag Version2 5eefb41
+```html
+<section class="main-content">
+  <h2>Admin Dashboard Placeholder</h2>
+  <p>This is a placeholder for main admin content. We'll define this later.</p>
+</section>
 ```
 
 ---
 
-### 2. List all tags
+## ✅ Step 5: Set Up Routing
 
-```bash
-git tag
+Since my app had menu items like **Dashboard** and **Students**, I let Angular Router handle the navigation.
+
+### 5.1 Defined Routes in `app.routes.ts`
+
+```ts
+import { Routes } from '@angular/router';
+import { MainContentComponent } from './main-content/main-content';
+import { inject } from '@angular/core';
+
+export const routes: Routes = [
+  {
+    path: '',
+    redirectTo: 'dashboard',
+    pathMatch: 'full',
+  },
+  {
+    path: 'dashboard',
+    component: MainContentComponent,
+    title: 'Dashboard',
+  },
+  {
+    path: 'students',
+    component: MainContentComponent,
+    title: 'Students',
+  },
+  // Add more later (faculties, timetable, etc.)
+];
 ```
 
-This will show all tags in your local repo, like:
+> ✅ For now, I used the same `MainContentComponent` as a placeholder for all routes. Later, I planned to replace it with individual page components like `DashboardComponent`, `StudentsComponent`, etc.
 
+---
+
+## ✅ Step 6: Used `<router-outlet />` in App HTML
+
+I edited `src/app/app.html`:
+
+```html
+<app-navbar></app-navbar>
+<router-outlet></router-outlet>
 ```
-Version1
-Version2
+
+Which meant:
+
+* The `navbar` stayed fixed on top
+* The routed page (`main-content`) rendered below it
+
+---
+
+## ✅ Step 7: Enabled Routing in `src/main.ts`
+
+I updated `bootstrapApplication()` with routing config:
+
+```ts
+import { bootstrapApplication } from '@angular/platform-browser';
+import { provideRouter } from '@angular/router';
+import { AppComponent } from './app';
+import { routes } from './app.routes';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideRouter(routes),
+  ],
+});
 ```
 
 ---
 
-### 3. Delete tags locally
+## ✅ Step 8: Modified Navbar to Use Routing
 
-To delete the tags from your local repository (without deleting commits):
+In `navbar.html`, I replaced menu item links like this:
 
-```bash
-git tag -d Version1
-git tag -d Version2
+```html
+<a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+<a routerLink="/students" routerLinkActive="active">Students</a>
 ```
+
+I retained `(click)="toggleMenu()"` if I wanted to close the dropdown after click.
 
 ---
 
-### Summary commands for your case
+### Optional (if I wanted to hide menu after click)
 
-```bash
-# Create tags for specific commits
-git tag Version1 15e487b
-git tag Version2 5eefb41
+In `navbar.ts`, I wrote:
 
-# List tags
-git tag
-
-# Delete tags locally
-git tag -d Version1
-git tag -d Version2
+```ts
+navigate(route: string) {
+  this.menuOpen = false;
+}
 ```
+
+But since my HTML used `routerLink` directly, I no longer needed `(click)="navigate('Dashboard')"` unless custom behavior was required.
 
 ---
 
-## Experiment 8: Advanced Git Operations
-Write the command to cherry-pick a range of commits from "source-branch" to the current
-branch.
-Sure! Here's the step-by-step answer tailored for your exact scenario, considering the issues you ran into with cherry-picking onto an orphan branch:
+## ✅ Step 9: Styled Router Content Like Before
+
+Ir original `main` styles from HTML (like padding, max-width, shadows) were already in global `styles.css`. I ensured they were scoped correctly.
+
+I optionally wrapped `router-outlet` in a `<main>` tag inside `app.html`:
+
+```html
+<app-navbar></app-navbar>
+<main>
+  <router-outlet></router-outlet>
+</main>
+```
+
+This ensured styling like shadows and spacing were applied consistently.
 
 ---
 
-## Scenario Recap
+## ✅ What I Planned to Do Next
 
-Your commit history on `main`:
+Once routing and `main-content` were working:
 
-```
-3b623f6 (HEAD -> main, origin/main) Java Script Added for Click Behaviour for Menu links
-15e487b styling added to HTML elements
-5eefb41 page elements html Ready
-```
-
----
-
-## 1. Create a new branch **without any history** (an orphan branch) and switch to it
-
-```bash
-git checkout --orphan new-branch
-```
-
-This creates a new branch with no commits.
-
-Clear out files from the index:
-
-```bash
-git rm -rf .
-```
+1. ✅ Verified navigation between `dashboard`, `students`
+2. ⏭️ Extracted `DashboardComponent` and `StudentsComponent` from `Menu.js` content
+3. ⏭️ Migrated dynamic data rendering (tables, inputs) using Angular directives like `*ngFor`, `[(ngModel)]`, etc.
+4. ⏭️ Introduced services for state/data sharing
 
 ---
 
-## 2. Create an initial empty commit (to avoid cherry-pick conflicts) and cherry-pick the commits from `main`
-
-Since the new branch has no commits, cherry-picking directly will cause conflicts.
-
-So first create an empty commit:
-
-```bash
-git commit --allow-empty -m "Initial empty commit on new-branch"
-```
-
-Now cherry-pick the commits from oldest to newest (to preserve order):
-
-```bash
-git cherry-pick 5eefb41
-git cherry-pick 15e487b
-git cherry-pick 3b623f6
-```
-
-If conflicts arise during any cherry-pick, resolve them by editing files, then:
-
-```bash
-git add <files>
-git cherry-pick --continue
-```
-
----
-
-## 3. Verify cherry-pick
-
-Check the commit history in your new branch:
-
-```bash
-git log --oneline
-```
-
-You should see:
-
-```
-3b623f6 Java Script Added for Click Behaviour for Menu links
-15e487b styling added to HTML elements
-5eefb41 page elements html Ready
-Initial empty commit on new-branch
-```
-
-(Note: commits appear in reverse chronological order.)
-
----
-
-## 4. Delete the new branch
-
-Switch back to `main`:
-
-```bash
-git checkout main
-```
-
-Delete the `new-branch`:
-
-```bash
-git branch -D new-branch
-```
-
----
-
-# **Summary of all commands**
-
-```bash
-git checkout --orphan new-branch
-git rm -rf .
-git commit --allow-empty -m "Initial empty commit on new-branch"
-git cherry-pick 5eefb41
-git cherry-pick 15e487b
-git cherry-pick 3b623f6
-# (resolve conflicts if any, then git add + git cherry-pick --continue)
-git checkout --theirs -- <file with Conflict>
-git add .
-git cherry-pick --continue
-git log --oneline
-# Delete the new-branch just to keep everything clean
-git checkout main
-git branch -D new-branch
-```
+Let me know if you'd like help reviewing those next steps or want to go deeper into page component extraction.
 
 
-## Experiment 12: Analysing and Changing Git History
-Write the command to undo the changes introduced by the commit with the ID "abc123".
+**i want to see how it works at this moment.** <-- Please Note this
+**Special Note: I am using a newer Angular standalone components or some custom setup (maybe Angular 20's zoneless mode with fresh conventions).** <--Please Note this
 
----
 
-### ✅ Step 1: Create the "Expermenting" Commit
 
-Make any changes you want to experiment with, then stage and commit them:
 
-```bash
-git add .
-git commit -m "Expermenting"
-```
-
-Assume this gives you a new commit like:
-
-```
-a1b2c3d Expermenting
-```
-
----
-
-### ✅ Step 2: Undo the Changes Introduced by "Expermenting" (Using `git reset`)
-
-You want to **undo the changes introduced by the "Expermenting" commit**, meaning you want to **remove the commit but keep the changes in your working directory** (so you can re-edit or fix them).
-
-To do that, use:
-
-```bash
-git reset HEAD~1
-```
-
-This command:
-
-* Removes the latest commit (i.e., "Expermenting")
-* Keeps the changes introduced by that commit in your working directory (so they're not lost)
-
----
-
-### 🔄 Alternatively: If You Want to Remove the Commit and Discard the Changes
-
-Use:
-
-```bash
-git reset --hard HEAD~1
-```
-
-⚠️ This **discards all changes** from the "Expermenting" commit — use only if you're sure.
-
-### ✅ **Summary**
-
-```bash
-# 1. Create a new commit named "Expermenting"
-git add .
-git commit -m "Expermenting"
-
-# 2. Undo the last commit but keep changes (soft reset)
-git reset HEAD~1
-
-# 3. Undo the last commit and discard changes (hard reset)
-git reset --hard HEAD~1
-
-# 4. View commit history in one line per commit
-git log --oneline
-
-# 5. Revert a specific commit by ID (creates a new commit that undoes it)
-git revert <commit-id>
-
-# 6. Discard all uncommitted changes (restore working directory)
-git restore .         # For unstaged changes
-git reset --hard      # For both staged and unstaged changes
-
-# 7. Check current branch and status
-git status
-```
-
----
 
 
 
