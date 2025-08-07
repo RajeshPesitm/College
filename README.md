@@ -170,6 +170,76 @@ git branch -d new-feature
 git stash clear
 ```
 
+## Experiment 4: Collaboration and Remote Repositories
+Clone a remote Git repository to your local machine.
+When you **clone a Git repository**, Git fetches **all branches**, but **only checks out the default branch** (usually `main` or `master`). The other branches are available as **remote branches**, and you can check them out manually.
+
+If you want to **see and work with all branches**, here’s how:
+
+---
+
+### ✅ 1. Clone the Repo (Normal Way)
+
+```bash
+git clone https://github.com/username/repo.git
+cd repo
+```
+
+This fetches **all branches**, but only `main` is checked out.
+
+---
+
+### 🔍 2. View All Remote Branches
+
+```bash
+git branch -r
+```
+
+Example output:
+
+```
+origin/HEAD -> origin/main
+origin/main
+origin/dev
+origin/feature/login
+```
+
+---
+
+### ⬇️ 3. Checkout All Remote Branches (Optional Script)
+
+If you want to **check out all remote branches locally**, you can run:
+
+```bash
+for branch in $(git branch -r | grep -v '\->'); do
+    git branch --track "${branch#origin/}" "$branch" 2>/dev/null
+done
+```
+
+Then fetch all:
+
+```bash
+git fetch --all
+```
+
+And verify:
+
+```bash
+git branch    # local branches
+git branch -r # remote branches
+```
+
+---
+
+### 🛠️ Notes
+
+* You don’t need to clone the repo differently to get all branches — a regular `git clone` includes everything, just not all checked out locally.
+* If you want to work on a branch like `dev`:
+
+  ```bash
+  git checkout dev
+  ```
+
 ---
 
 
