@@ -1,4 +1,95 @@
-## Experiment 2: Creating and Managing Branches
+# Geting Started
+Here’s a concise summary of the commands you need to:
+
+### 1. **Check `user.name` and `user.email` globally:**
+
+* **Check `user.name`:**
+
+  ```bash
+  git config --global user.name
+  ```
+
+* **Check `user.email`:**
+
+  ```bash
+  git config --global user.email
+  ```
+
+### 2. **Remove `user.name` and `user.email` globally:**
+
+* **Remove `user.name`:**
+
+  ```bash
+  git config --global --unset user.name
+  ```
+
+* **Remove `user.email`:**
+
+  ```bash
+  git config --global --unset user.email
+  ```
+
+These commands will clear the global Git configuration for `user.name` and `user.email`. Let me know if you need any further clarification!
+
+To set `user.name` and `user.email` **locally** for a specific Git repository, use the following commands **from within the repository directory**:
+
+### Clone the repository if not already exist
+```bash
+git clone <repository-url>
+cd <repository-name>
+gh auth login
+```
+
+---
+
+### ✅ **Set local Git username and email:**
+
+```bash
+git config user.name "Your Name"
+git config user.email "your.email@example.com"
+```
+
+> ⚠️ These settings apply **only to the current repository**, not globally.
+
+---
+
+### 🔍 **Verify local configuration:**
+
+```bash
+git config user.name
+git config user.email
+```
+
+Or to see all local Git configs:
+
+```bash
+git config --list --local
+```
+
+---
+
+# Experiment 1: Setting Up and Basic Commands
+Initialize a new Git repository in a directory. Create a new file and add it to the staging area
+and commit the changes with an appropriate commit message.
+
+```bash
+# Step 1: Initialize the Git repository
+git init  #do this inside your local git repository
+# Step 2: Rename the default branch to 'main'
+git branch -M main
+# Step 3: Add all files to the staging area
+git add .
+# Step 4: Commit the changes with a message
+git commit -m "React App without Backend Connected"
+# Step 5: Log in to GitHub (only needs to be done once)
+gh auth login
+# Step 6: Create the GitHub repository, link to the local project, and push to GitHub
+gh repo create LearningFrontEnd --public --source=. --remote=origin --confirm
+# Step 7: Push to GitHub (use 'git push' after setting up remote tracking)
+git push origin main
+```
+
+# Experiment 2: Creating and Managing Branches
 Create a new branch named "feature-branch." Switch to the "master" branch. Merge the
 "feature-branch" into "master.
 
@@ -103,7 +194,7 @@ git branch -D feature-branch
 git push origin main  # if you want to update remote repo
 ```
 
-## Experiment 3: Creating and Managing Branches
+# Experiment 3: Creating and Managing Branches
 Write the commands to stash your changes, switch branches, and then apply the stashed
 changes.
 
@@ -170,10 +261,80 @@ git branch -d new-feature
 git stash clear
 ```
 
+# Experiment 4: Collaboration and Remote Repositories
+Clone a remote Git repository to your local machine.
+When you **clone a Git repository**, Git fetches **all branches**, but **only checks out the default branch** (usually `main` or `master`). The other branches are available as **remote branches**, and you can check them out manually.
+
+If you want to **see and work with all branches**, here’s how:
+
+---
+
+### ✅ 1. Clone the Repo (Normal Way)
+
+```bash
+git clone https://github.com/username/repo.git
+cd repo
+```
+
+This fetches **all branches**, but only `main` is checked out.
+
+---
+
+### 🔍 2. View All Remote Branches
+
+```bash
+git branch -r
+```
+
+Example output:
+
+```
+origin/HEAD -> origin/main
+origin/main
+origin/dev
+origin/feature/login
+```
+
+---
+
+### ⬇️ 3. Checkout All Remote Branches (Optional Script)
+
+If you want to **check out all remote branches locally**, you can run:
+
+```bash
+for branch in $(git branch -r | grep -v '\->'); do
+    git branch --track "${branch#origin/}" "$branch" 2>/dev/null
+done
+```
+
+Then fetch all:
+
+```bash
+git fetch --all
+```
+
+And verify:
+
+```bash
+git branch    # local branches
+git branch -r # remote branches
+```
+
+---
+
+### 🛠️ Notes
+
+* You don’t need to clone the repo differently to get all branches — a regular `git clone` includes everything, just not all checked out locally.
+* If you want to work on a branch like `dev`:
+
+  ```bash
+  git checkout dev
+  ```
+
 ---
 
 
-## Experiment 5: Collaboration and Remote Repositories
+# Experiment 5: Collaboration and Remote Repositories
 Fetch the latest changes from a remote repository and rebase your local branch onto the
 updated remote branch.
 ### Scenario
@@ -275,7 +436,7 @@ updated remote branch.
 ---
 
 
-## Experiment 7: Git Tags and Releases
+# Experiment 7: Git Tags and Releases
 Write the command to create a lightweight Git tag named "v1.0" for a commit in your local
 repository.
 
@@ -343,7 +504,7 @@ git tag -d Version2
 
 ---
 
-## Experiment 8: Advanced Git Operations
+# Experiment 8: Advanced Git Operations
 Write the command to cherry-pick a range of commits from "source-branch" to the current
 branch.
 Sure! Here's the step-by-step answer tailored for your exact scenario, considering the issues you ran into with cherry-picking onto an orphan branch:
@@ -442,7 +603,7 @@ git branch -D new-branch
 
 ---
 
-# **Summary of all commands**
+## **Summary of all commands**
 
 ```bash
 git checkout --orphan new-branch
@@ -462,7 +623,7 @@ git branch -D new-branch
 ```
 
 
-## Experiment 12: Analysing and Changing Git History
+# Experiment 12: Analysing and Changing Git History
 Write the command to undo the changes introduced by the commit with the ID "abc123".
 
 ---
@@ -542,3 +703,112 @@ git status
 
 
 
+
+# Additional Knowledge
+## Section 3: Install Github CLI Steps (ubuntu 22.04)  
+Update system (optional but recommended)
+```bash
+sudo apt update && sudo apt upgrade -y
+Install GitHub CLI
+sudo apt install gh
+```
+if this command fails
+   - Add the GitHub CLI repository
+```bash
+curl -fsSL https://cli.github.com/packages/githubcli.repo | sudo tee /etc/apt/sources.list.d/github-cli.list
+```
+
+  - Import the GPG key
+```bash
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EB3CBB02
+```
+
+  - Update package list
+  ```bash
+  sudo apt update
+  ```
+  - Try Again 
+    sudo apt install gh
+
+- Verify installation (optional)
+```bash
+gh --version
+```
+
+### Section 4: Difference between Stashing Staging and Commit
+
+### Git Workflow
+
+1. **Work on files**  
+   Your files are changed but unstaged.
+
+2. **Stage changes**  
+   Stage the changes you want to commit using `git add`.
+
+3. **Commit staged changes**  
+   Commit the staged changes to save your work with `git commit`.
+
+4. **If interrupted with unfinished work**  
+   Stash your changes using `git stash`, switch context, and then apply the stash later with `git stash apply`.
+
+---
+
+### Visual Analogy:
+
+- **Unstaged changes** = Messy desk with all your current work.
+- **Staging area (`git add`)** = Pile of papers you've selected to file.
+- **Commit (`git commit`)** = Filing those papers into a permanent cabinet.
+- **Stash (`git stash` and `git stash apply`)** = Putting your entire messy desk temporarily in a drawer to clear space, then pulling it back out later.
+
+---
+
+## Section 5: VS Code Live Server Setup
+
+### Steps to Access Live Server on a LAN:
+
+1. **Get your machine IP address**  
+   Run the following command to find your machine's IP address:
+
+```bash
+ip addr show
+```
+
+(Note: You may need to install `inet` to get the proper output.)
+
+Look for `inet:` to find the IP address.
+
+2. **Optional: Allow firewall or port access**
+   If you’re using the UFW firewall on Ubuntu, allow access to port 5500 (or the port that Live Server uses):
+
+   ```bash
+   sudo ufw allow 5500
+   ```
+
+3. **Access Live Server from other machines on the same LAN**
+   Using the machine IP address found in step 1, access your server on another machine in the same network:
+
+   ```
+   http://192.168.1.42:5500/index.html
+   ```
+
+   Replace `192.168.1.42` with your actual IP address.
+
+
+## Section 6: Delete an existig Branch
+```bash
+# 1. Check existing branches
+git branch             # local branches
+git branch -r          # remote branches
+
+# 2. Delete local branch
+git branch -d React-Experiment      # Safe delete (only if merged)
+# OR force delete if unmerged
+git branch -D React-Experiment
+
+# 3. Delete remote branch
+git push origin --delete React-Experiment
+
+# 4. Clean up local references to deleted remote branches
+git fetch -p
+
+```
