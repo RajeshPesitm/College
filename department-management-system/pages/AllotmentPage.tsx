@@ -7,7 +7,7 @@ interface AllotmentPageProps {
   subjects: Subject[];
   allotments: SubjectAllotment[];
   batches: Batch[];
-  onAddAllotment: (allotment: Omit<SubjectAllotment, 'id'>) => Promise<void>;
+  onAddAllotment: (allotment: { facultyId: string, subjectId: string }) => Promise<void>;
 }
 
 const AllotmentPage: React.FC<AllotmentPageProps> = ({ faculty, subjects, allotments, batches, onAddAllotment }) => {
@@ -25,7 +25,7 @@ const AllotmentPage: React.FC<AllotmentPageProps> = ({ faculty, subjects, allotm
 
   const subjectDetails = useMemo(() => {
     return subjects.map(subject => {
-        const batch = batches.find(b => b.id === subject.batchId);
+        const batch = batches.find(b => b.id === subject.batch);
         return {
             ...subject,
             batchInfo: batch ? `Sem ${batch.semester} (${batch.year})` : 'N/A'
@@ -35,8 +35,8 @@ const AllotmentPage: React.FC<AllotmentPageProps> = ({ faculty, subjects, allotm
 
   const allotmentDetails = useMemo(() => {
     return allotments.map(allotment => {
-      const facultyMember = faculty.find(f => f.id === allotment.facultyId);
-      const subject = subjectDetails.find(s => s.id === allotment.subjectId);
+      const facultyMember = faculty.find(f => f.id === allotment.faculty);
+      const subject = subjectDetails.find(s => s.id === allotment.subject);
       return {
         id: allotment.id,
         facultyName: facultyMember?.name || 'N/A',

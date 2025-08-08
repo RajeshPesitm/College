@@ -1,14 +1,14 @@
 export interface Batch {
-  id: string;
+  id: number;
   year: number;
   semester: number;
 }
 
 export interface Student {
-  id: string;
+  id: number;
   name: string;
   usn: string;
-  batchId: string;
+  batch: number;
 }
 
 export interface Faculty {
@@ -19,19 +19,19 @@ export interface Faculty {
 export interface Subject {
   id: string;
   name: string;
-  batchId: string;
+  batch: number;
 }
 
 export interface SubjectAllotment {
-  id: string;
-  facultyId: string;
-  subjectId: string;
+  id: number;
+  faculty: string;
+  subject: string;
 }
 
 export interface AttendanceRecord {
-  id: string;
-  studentId: string;
-  subjectId: string;
+  id: number;
+  student: number;
+  subject: string;
   date: string; // YYYY-MM-DD
   status: 'Present' | 'Absent';
 }

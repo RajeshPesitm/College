@@ -13,16 +13,16 @@ const AttendancePage: React.FC<AttendancePageProps> = ({ students, subjects, bat
   const [selectedBatchId, setSelectedBatchId] = useState<string>('');
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>('');
   const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
-  const [attendanceStatus, setAttendanceStatus] = useState<Record<string, 'Present' | 'Absent'>>({});
+  const [attendanceStatus, setAttendanceStatus] = useState<Record<number, 'Present' | 'Absent'>>({});
 
   const subjectsInBatch = useMemo(() => {
     if (!selectedBatchId) return [];
-    return subjects.filter(s => s.batchId === selectedBatchId);
+    return subjects.filter(s => s.batch === Number(selectedBatchId));
   }, [subjects, selectedBatchId]);
 
   const relevantStudents = useMemo(() => {
     if (!selectedBatchId) return [];
-    return students.filter(s => s.batchId === selectedBatchId);
+    return students.filter(s => s.batch === Number(selectedBatchId));
   }, [students, selectedBatchId]);
   
   useEffect(() => {
@@ -31,14 +31,14 @@ const AttendancePage: React.FC<AttendancePageProps> = ({ students, subjects, bat
   }, [selectedBatchId]);
 
   useEffect(() => {
-    const initialStatus: Record<string, 'Present' | 'Absent'> = {};
+    const initialStatus: Record<number, 'Present' | 'Absent'> = {};
     relevantStudents.forEach(student => {
       initialStatus[student.id] = 'Present';
     });
     setAttendanceStatus(initialStatus);
   }, [relevantStudents]);
 
-  const handleStatusChange = (studentId: string, status: 'Present' | 'Absent') => {
+  const handleStatusChange = (studentId: number, status: 'Present' | 'Absent') => {
     setAttendanceStatus(prev => ({ ...prev, [studentId]: status }));
   };
 
@@ -49,8 +49,8 @@ const AttendancePage: React.FC<AttendancePageProps> = ({ students, subjects, bat
       return;
     }
     const records: Omit<AttendanceRecord, 'id'>[] = relevantStudents.map(student => ({
-      studentId: student.id,
-      subjectId: selectedSubjectId,
+      student: student.id,
+      subject: selectedSubjectId,
       date,
       status: attendanceStatus[student.id] || 'Absent',
     }));
@@ -92,7 +92,7 @@ const AttendancePage: React.FC<AttendancePageProps> = ({ students, subjects, bat
       </Card>
       
       {selectedSubjectId && (
-        <Card title={`Marking Attendance for Batch: Sem ${batches.find(b=>b.id===selectedBatchId)?.semester}`}>
+        <Card title={`Marking Attendance for Batch: Sem ${batches.find(b=>b.id===Number(selectedBatchId))?.semester}`}>
           {relevantStudents.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-700">

@@ -7,7 +7,7 @@ import { UploadIcon } from '../components/icons/UploadIcon';
 interface ManageBatchSubjectsPageProps {
   batches: Batch[];
   subjects: Subject[];
-  onAddSubjects: (subjects: Omit<Subject, 'batchId'>[], batchId: string) => Promise<void>;
+  onAddSubjects: (subjects: Omit<Subject, 'batch'>[], batchId: string) => Promise<void>;
   onClearSubjects: (batchId: string) => Promise<void>;
 }
 
@@ -17,7 +17,7 @@ const ManageBatchSubjectsPage: React.FC<ManageBatchSubjectsPageProps> = ({ batch
 
   const subjectsInBatch = useMemo(() => {
     if (!selectedBatchId) return [];
-    return subjects.filter(s => s.batchId === selectedBatchId);
+    return subjects.filter(s => s.batch === Number(selectedBatchId));
   }, [subjects, selectedBatchId]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,7 +31,7 @@ const ManageBatchSubjectsPage: React.FC<ManageBatchSubjectsPageProps> = ({ batch
 
     setIsProcessing(true);
     
-    Papa.parse<Omit<Subject, 'batchId'>>(file, {
+    Papa.parse<Omit<Subject, 'batch'>>(file, {
       header: true,
       skipEmptyLines: true,
       complete: async (results) => {

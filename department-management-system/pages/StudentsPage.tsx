@@ -7,7 +7,7 @@ import { UploadIcon } from '../components/icons/UploadIcon';
 interface ManageBatchStudentsPageProps {
   batches: Batch[];
   students: Student[];
-  onAddStudents: (students: Omit<Student, 'id' | 'batchId'>[], batchId: string) => Promise<void>;
+  onAddStudents: (students: Omit<Student, 'id' | 'batch'>[], batchId: string) => Promise<void>;
   onClearStudents: (batchId: string) => Promise<void>;
 }
 
@@ -17,7 +17,7 @@ const ManageBatchStudentsPage: React.FC<ManageBatchStudentsPageProps> = ({ batch
 
   const studentsInBatch = useMemo(() => {
     if (!selectedBatchId) return [];
-    return students.filter(s => s.batchId === selectedBatchId);
+    return students.filter(s => s.batch === Number(selectedBatchId));
   }, [students, selectedBatchId]);
   
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,7 +31,7 @@ const ManageBatchStudentsPage: React.FC<ManageBatchStudentsPageProps> = ({ batch
 
     setIsProcessing(true);
     
-    Papa.parse<Omit<Student, 'id' | 'batchId'>>(file, {
+    Papa.parse<Omit<Student, 'id' | 'batch'>>(file, {
       header: true,
       skipEmptyLines: true,
       complete: async (results) => {

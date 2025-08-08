@@ -11,39 +11,24 @@ import AttendancePage from './pages/AttendancePage';
 import CreateBatchPage from './pages/CreateBatchPage';
 
 
-// --- MOCK API and DATABASE ---
-// In a real app, this data would live in a Django database.
-// These functions simulate making API calls to fetch/update that data.
+const API_BASE_URL = 'http://localhost:8000/api';
 
-const initialBatches: Batch[] = [
-    { id: 'b1', year: 2024, semester: 5 },
-    { id: 'b2', year: 2024, semester: 3 },
-];
+// --- Helper for API requests ---
+const handleApiResponse = async (response: Response) => {
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ detail: 'An unknown error occurred.' }));
+        const errorMessage = Object.values(errorData).flat().join('\n') || `Request failed with status ${response.status}`;
+        throw new Error(errorMessage);
+    }
+    // For 204 No Content, there's no body to parse
+    if (response.status === 204) {
+        return null;
+    }
+    return response.json();
+}
 
-const initialStudents: Student[] = [
-    { id: 'stu1', name: 'John Doe', usn: '1AB21CS001', batchId: 'b1' },
-    { id: 'stu3', name: 'Peter Jones', usn: '1AB21CS003', batchId: 'b1' },
-    { id: 'stu2', name: 'Jane Smith', usn: '1AB21CS002', batchId: 'b2' },
-];
-
-const initialFaculty: Faculty[] = [
-    { id: 'F001', name: 'Dr. Alan Turing' },
-    { id: 'F002', name: 'Dr. Ada Lovelace' },
-];
-
-const initialSubjects: Subject[] = [
-    { id: 'S02', name: 'Algorithms', batchId: 'b1' },
-    { id: 'S03', name: 'Database Systems', batchId: 'b1' },
-    { id: 'S01', name: 'Data Structures', batchId: 'b2' },
-];
-
-const initialAllotments: SubjectAllotment[] = [
-    { id: 'allot1', facultyId: 'F002', subjectId: 'S01' },
-    { id: 'allot2', facultyId: 'F001', subjectId: 'S02' },
-];
 
 // --- App Component ---
-
 const App: React.FC = () => {
   // Centralized state management, simulating data fetched from a backend
   const [batches, setBatches] = useState<Batch[]>([]);
@@ -51,138 +36,166 @@ const App: React.FC = () => {
   const [faculty, setFaculty] = useState<Faculty[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [allotments, setAllotments] = useState<SubjectAllotment[]>([]);
-  const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Simulate fetching initial data from the backend on app load
   useEffect(() => {
     const fetchData = async () => {
-      console.log("API CALL: Fetching initial data...");
+      console.log("API CALL: Fetching initial data from Django...");
       setLoading(true);
-      // Simulate network delay
-      await new Promise(res => setTimeout(res, 500));
-      setBatches(initialBatches);
-      setStudents(initialStudents);
-      setFaculty(initialFaculty);
-      setSubjects(initialSubjects);
-      setAllotments(initialAllotments);
-      setLoading(false);
-      console.log("API CALL: Initial data loaded.");
+      try {
+        const [batchesRes, studentsRes, facultyRes, subjectsRes, allotmentsRes] = await Promise.all([
+            fetch(`${API_BASE_URL}/batches/`),
+            fetch(`${API_BASE_URL}/students/`),
+            fetch(`${API_BASE_URL}/faculty/`),
+            fetch(`${API_BASE_URL}/subjects/`),
+            fetch(`${API_BASE_URL}/allotments/`),
+        ]);
+
+        // We can throw here if any response is not ok
+        if (!batchesRes.ok || !studentsRes.ok || !facultyRes.ok || !subjectsRes.ok || !allotmentsRes.ok) {
+            throw new Error('Failed to fetch one or more resources.');
+        }
+
+        setBatches(await batchesRes.json());
+        setStudents(await studentsRes.json());
+        setFaculty(await facultyRes.json());
+        setSubjects(await subjectsRes.json());
+        setAllotments(await allotmentsRes.json());
+
+        console.log("API CALL: Initial data loaded.");
+      } catch (error) {
+          console.error("Failed to fetch initial data:", error);
+          alert(`Could not connect to the backend. Is the Django server running at ${API_BASE_URL}?`);
+      } finally {
+          setLoading(false);
+      }
     };
     fetchData();
   }, []);
 
-  // --- API-like handler functions ---
+  // --- API handler functions ---
 
   const addBatch = async (batchData: Omit<Batch, 'id'>) => {
     console.log("API CALL: POST /api/batches/", batchData);
-    await new Promise(res => setTimeout(res, 300)); // Simulate network delay
-    const newBatch: Batch = { ...batchData, id: `batch-${Date.now()}` };
-    setBatches(prev => [...prev, newBatch]);
-    alert(`Batch for Semester ${newBatch.semester} (${newBatch.year}) created successfully!`);
+    try {
+        const response = await fetch(`${API_BASE_URL}/batches/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(batchData)
+        });
+        const newBatch = await handleApiResponse(response);
+        setBatches(prev => [...prev, newBatch]);
+        alert(`Batch for Semester ${newBatch.semester} (${newBatch.year}) created successfully!`);
+    } catch (error: any) {
+        alert(`Error: ${error.message}`);
+    }
   };
 
-  const addStudentsToBatch = async (newStudents: Omit<Student, 'id'>[], batchId: string) => {
-      console.log(`API CALL: POST /api/batches/${batchId}/students`, newStudents);
-      await new Promise(res => setTimeout(res, 300));
-      
-      const existingUsns = new Set(students.map(s => s.usn));
-      const studentsToAdd: Student[] = [];
-      const duplicateUsns: string[] = [];
-
-      newStudents.forEach(newStudent => {
-          if (existingUsns.has(newStudent.usn)) {
-              duplicateUsns.push(newStudent.usn);
-          } else {
-              studentsToAdd.push({ ...newStudent, id: `stu-${newStudent.usn}` });
-              existingUsns.add(newStudent.usn);
-          }
-      });
-      
-      setStudents(prev => [...prev, ...studentsToAdd]);
-      
-      let alertMessages = [];
-      if (studentsToAdd.length > 0) alertMessages.push(`Successfully added ${studentsToAdd.length} new students.`);
-      if (duplicateUsns.length > 0) alertMessages.push(`Ignored ${duplicateUsns.length} duplicates: ${duplicateUsns.join(', ')}.`);
-      if(alertMessages.length > 0) alert(alertMessages.join('\n'));
+  const addStudentsToBatch = async (newStudents: Omit<Student, 'id' | 'batch'>[], batchId: string) => {
+      console.log(`API CALL: POST /api/batches/${batchId}/add_students/`, newStudents);
+      try {
+          const response = await fetch(`${API_BASE_URL}/batches/${batchId}/add_students/`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(newStudents)
+          });
+          const addedStudents = await handleApiResponse(response);
+          // Refetch all students to get the most up-to-date list
+          const studentsRes = await fetch(`${API_BASE_URL}/students/`);
+          setStudents(await studentsRes.json());
+          alert(`Successfully processed students. Added ${addedStudents.length} new students.`);
+      } catch (error: any) {
+          alert(`Error: ${error.message}`);
+      }
   };
 
   const clearStudentsFromBatch = async (batchId: string) => {
-      console.log(`API CALL: DELETE /api/batches/${batchId}/students`);
-      await new Promise(res => setTimeout(res, 300));
-      setStudents(prev => prev.filter(s => s.batchId !== batchId));
-      alert(`All students from the selected batch have been cleared.`);
+      console.log(`API CALL: DELETE /api/batches/${batchId}/clear_students/`);
+      try {
+          const response = await fetch(`${API_BASE_URL}/batches/${batchId}/clear_students/`, { method: 'DELETE' });
+          await handleApiResponse(response);
+          setStudents(prev => prev.filter(s => s.batch !== Number(batchId)));
+          alert(`All students from the selected batch have been cleared.`);
+      } catch (error: any) {
+          alert(`Error: ${error.message}`);
+      }
   };
     
-  const addSubjectsToBatch = async (newSubjects: Omit<Subject, 'batchId'>[], batchId: string) => {
-      console.log(`API CALL: POST /api/batches/${batchId}/subjects`, newSubjects);
-      await new Promise(res => setTimeout(res, 300));
-
-      const existingIds = new Set(subjects.map(s => s.id));
-      const subjectsToAdd: Subject[] = [];
-      const duplicateIds: string[] = [];
-
-      newSubjects.forEach(newSub => {
-          if (existingIds.has(newSub.id)) {
-              duplicateIds.push(newSub.id);
-          } else {
-              subjectsToAdd.push({ ...newSub, batchId });
-              existingIds.add(newSub.id);
-          }
-      });
-
-      setSubjects(prev => [...prev, ...subjectsToAdd]);
-
-      let alertMessages = [];
-      if (subjectsToAdd.length > 0) alertMessages.push(`Successfully added ${subjectsToAdd.length} new subjects.`);
-      if (duplicateIds.length > 0) alertMessages.push(`Ignored ${duplicateIds.length} duplicates: ${duplicateIds.join(', ')}.`);
-      if (alertMessages.length > 0) alert(alertMessages.join('\n'));
+  const addSubjectsToBatch = async (newSubjects: Omit<Subject, 'batch'>[], batchId: string) => {
+      console.log(`API CALL: POST /api/batches/${batchId}/add_subjects/`, newSubjects);
+      try {
+          const response = await fetch(`${API_BASE_URL}/batches/${batchId}/add_subjects/`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(newSubjects)
+          });
+          const addedSubjects = await handleApiResponse(response);
+           // Refetch all subjects to get the most up-to-date list
+          const subjectsRes = await fetch(`${API_BASE_URL}/subjects/`);
+          setSubjects(await subjectsRes.json());
+          alert(`Successfully processed subjects. Added ${addedSubjects.length} new subjects.`);
+      } catch (error: any) {
+          alert(`Error: ${error.message}`);
+      }
   };
 
   const clearSubjectsFromBatch = async (batchId: string) => {
-      console.log(`API CALL: DELETE /api/batches/${batchId}/subjects`);
-      await new Promise(res => setTimeout(res, 300));
-      setSubjects(prev => prev.filter(s => s.batchId !== batchId));
-      alert(`All subjects from the selected batch have been cleared.`);
+      console.log(`API CALL: DELETE /api/batches/${batchId}/clear_subjects/`);
+      try {
+          const response = await fetch(`${API_BASE_URL}/batches/${batchId}/clear_subjects/`, { method: 'DELETE' });
+          await handleApiResponse(response);
+          setSubjects(prev => prev.filter(s => s.batch !== Number(batchId)));
+          alert(`All subjects from the selected batch have been cleared.`);
+      } catch (error: any) {
+          alert(`Error: ${error.message}`);
+      }
   };
-
 
   const addFaculty = async (facultyMember: Faculty) => {
     console.log("API CALL: POST /api/faculty/", facultyMember);
-    await new Promise(res => setTimeout(res, 300));
-    if (faculty.some(f => f.id === facultyMember.id)) {
-        alert('Faculty with this ID already exists.');
-        return;
+    try {
+        const response = await fetch(`${API_BASE_URL}/faculty/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(facultyMember)
+        });
+        const newFaculty = await handleApiResponse(response);
+        setFaculty(prev => [...prev, newFaculty]);
+    } catch (error: any) {
+        alert(`Error: ${error.message}`);
     }
-    setFaculty(prev => [...prev, facultyMember]);
   };
 
-  const addAllotment = async (allotment: Omit<SubjectAllotment, 'id'>) => {
-    console.log("API CALL: POST /api/allotments/", allotment);
-    await new Promise(res => setTimeout(res, 300));
-    const exists = allotments.some(a => a.facultyId === allotment.facultyId && a.subjectId === allotment.subjectId);
-    if (!exists) {
-        setAllotments(prev => [...prev, { ...allotment, id: `allot${Date.now()}` }]);
-    } else {
-        alert('This faculty member is already allotted to this subject.');
+  const addAllotment = async (allotment: { facultyId: string, subjectId: string }) => {
+    const payload = { faculty: allotment.facultyId, subject: allotment.subjectId };
+    console.log("API CALL: POST /api/allotments/", payload);
+    try {
+        const response = await fetch(`${API_BASE_URL}/allotments/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const newAllotment = await handleApiResponse(response);
+        setAllotments(prev => [...prev, newAllotment]);
+    } catch (error: any) {
+        alert(`Error: ${error.message}`);
     }
   };
   
   const addAttendanceRecords = async (records: Omit<AttendanceRecord, 'id'>[]) => {
     console.log("API CALL: POST /api/attendance/", records);
-    await new Promise(res => setTimeout(res, 300));
-    const newRecordsWithIds = records.map(record => ({
-      ...record,
-      id: `att-${record.studentId}-${record.subjectId}-${record.date}`
-    }));
-
-    setAttendance(prev => {
-        const updatedPrev = prev.filter(existing => 
-            !newRecordsWithIds.some(newRecord => newRecord.id === existing.id)
-        );
-        return [...updatedPrev, ...newRecordsWithIds];
-    });
-    alert(`${records.length} attendance records submitted successfully!`);
+    try {
+        const response = await fetch(`${API_BASE_URL}/attendance/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(records)
+        });
+        await handleApiResponse(response);
+        alert(`${records.length} attendance records submitted successfully!`);
+    } catch(error: any) {
+        alert(`Error: ${error.message}`);
+    }
   };
 
   if (loading) {
