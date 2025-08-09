@@ -83,10 +83,10 @@ const CreateBatchPage: React.FC<CreateBatchPageProps> = ({ onAddBatch, batches }
                 </div>
                 <div className="absolute inset-0 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <div className="text-center space-y-4">
-                        <Link to="/batches/students" className="flex items-center justify-center bg-blue-600 text-white rounded-lg px-4 py-2 w-48 mx-auto hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg">
+                        <Link to={`/batches/students/${batch.id}`} className="flex items-center justify-center bg-blue-600 text-white rounded-lg px-4 py-2 w-48 mx-auto hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg">
                             <StudentIcon /> <span className="ml-2 font-semibold">Manage Students</span>
                         </Link>
-                        <Link to="/batches/subjects" className="flex items-center justify-center bg-teal-600 text-white rounded-lg px-4 py-2 w-48 mx-auto hover:bg-teal-700 transition-all transform hover:scale-105 shadow-lg">
+                        <Link to={`/batches/subjects/${batch.id}`} className="flex items-center justify-center bg-teal-600 text-white rounded-lg px-4 py-2 w-48 mx-auto hover:bg-teal-700 transition-all transform hover:scale-105 shadow-lg">
                             <SubjectIcon /> <span className="ml-2 font-semibold">Manage Subjects</span>
                         </Link>
                     </div>

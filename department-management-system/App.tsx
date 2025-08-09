@@ -214,10 +214,9 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/batches/create" element={<CreateBatchPage onAddBatch={addBatch} batches={batches} />} />
-            <Route path="/batches/students" element={<ManageBatchStudentsPage batches={batches} students={students} onAddStudents={addStudentsToBatch} onClearStudents={clearStudentsFromBatch} />} />
-            <Route path="/batches/subjects" element={<ManageBatchSubjectsPage batches={batches} subjects={subjects} onAddSubjects={addSubjectsToBatch} onClearSubjects={clearSubjectsFromBatch} />} />
+            <Route path="/batches/students/:batchId" element={<ManageBatchStudentsPage batches={batches} students={students} onAddStudents={addStudentsToBatch} onClearStudents={clearStudentsFromBatch} />} />
+            <Route path="/batches/subjects/:batchId" element={<ManageBatchSubjectsPage batches={batches} subjects={subjects} onAddSubjects={addSubjectsToBatch} onClearSubjects={clearSubjectsFromBatch} />} />
             <Route path="/faculty" element={<FacultyPage faculty={faculty} onAddFaculty={addFaculty} />} />
-            <Route path="/subjects" element={<ManageBatchSubjectsPage batches={batches} subjects={subjects} onAddSubjects={addSubjectsToBatch} onClearSubjects={clearSubjectsFromBatch} />} />
             <Route path="/allotment" element={<AllotmentPage faculty={faculty} subjects={subjects} batches={batches} allotments={allotments} onAddAllotment={addAllotment} />} />
             <Route path="/attendance" element={<AttendancePage students={students} subjects={subjects} batches={batches} onAddAttendanceRecords={addAttendanceRecords} />} />
           </Routes>

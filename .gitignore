@@ -14,3 +14,6 @@ media/
 # IDE
 .vscode/
 *.log
+
+# User files
+Coding.md
