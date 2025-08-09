@@ -213,7 +213,7 @@ const App: React.FC = () => {
         <main className="flex-grow p-4 sm:p-6 lg:p-8">
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/batches/create" element={<CreateBatchPage onAddBatch={addBatch} />} />
+            <Route path="/batches/create" element={<CreateBatchPage onAddBatch={addBatch} batches={batches} />} />
             <Route path="/batches/students" element={<ManageBatchStudentsPage batches={batches} students={students} onAddStudents={addStudentsToBatch} onClearStudents={clearStudentsFromBatch} />} />
             <Route path="/batches/subjects" element={<ManageBatchSubjectsPage batches={batches} subjects={subjects} onAddSubjects={addSubjectsToBatch} onClearSubjects={clearSubjectsFromBatch} />} />
             <Route path="/faculty" element={<FacultyPage faculty={faculty} onAddFaculty={addFaculty} />} />

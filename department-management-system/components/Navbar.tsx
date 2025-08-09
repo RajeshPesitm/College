@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { MenuIcon } from './icons/MenuIcon';
 import { CloseIcon } from './icons/CloseIcon';
@@ -7,7 +7,6 @@ import { BatchIcon } from './icons/BatchIcon';
 import { FacultyIcon } from './icons/FacultyIcon';
 import { AllotmentIcon } from './icons/AllotmentIcon';
 import { AttendanceIcon } from './icons/AttendanceIcon';
-import { ChevronDownIcon } from './icons/ChevronDownIcon';
 
 interface NavLinkProps {
   to: string;
@@ -18,7 +17,17 @@ interface NavLinkProps {
 
 const NavLink: React.FC<NavLinkProps> = ({ to, children, onClick, className='' }) => {
   const location = useLocation();
-  const isActive = location.pathname === to;
+  let isActive = location.pathname === to;
+
+  // Make "Batches" link active for all /batches/* routes
+  if (to === '/batches/create' && location.pathname.startsWith('/batches')) {
+      isActive = true;
+  }
+   // Exact match for home
+  if (to === '/' && location.pathname !== '/') {
+      isActive = false;
+  }
+
 
   return (
     <Link
@@ -35,46 +44,17 @@ const NavLink: React.FC<NavLinkProps> = ({ to, children, onClick, className='' }
   );
 };
 
-const DropdownLink: React.FC<{ to: string, children: React.ReactNode, onClick: () => void }> = ({ to, children, onClick }) => {
-    const location = useLocation();
-    const isActive = location.pathname === to;
-    return (
-        <Link to={to} onClick={onClick} className={`block px-4 py-2 text-sm ${isActive ? 'bg-blue-600 text-white' : 'text-gray-300'} hover:bg-secondary hover:text-white`}>
-            {children}
-        </Link>
-    )
-}
 
 const Navbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isBatchesDropdownOpen, setIsBatchesDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const navLinks = [
     { to: '/', label: 'Home', icon: <HomeIcon /> },
-    // The "Batches" dropdown will be handled separately
+    { to: '/batches/create', label: 'Batches', icon: <BatchIcon /> },
     { to: '/faculty', label: 'Faculty', icon: <FacultyIcon /> },
     { to: '/allotment', label: 'Allotment', icon: <AllotmentIcon /> },
     { to: '/attendance', label: 'Attendance', icon: <AttendanceIcon /> },
   ];
-
-  const batchLinks = [
-      { to: '/batches/create', label: 'Create Batch' },
-      { to: '/batches/students', label: 'Manage Students' },
-      { to: '/batches/subjects', label: 'Manage Subjects' },
-  ]
-
-  // Close dropdown if clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsBatchesDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [dropdownRef]);
-
 
   return (
     <nav className="bg-gray-800 shadow-lg sticky top-0 z-50">
@@ -93,26 +73,6 @@ const Navbar: React.FC = () => {
                    {link.label}
                  </NavLink>
               ))}
-              {/* Batches Dropdown for Desktop */}
-              <div className="relative" ref={dropdownRef}>
-                <button
-                    onClick={() => setIsBatchesDropdownOpen(prev => !prev)}
-                    className="flex items-center px-4 py-2 text-sm rounded-md transition-colors duration-200 text-gray-300 hover:bg-secondary hover:text-white focus:outline-none"
-                >
-                    <span className="mr-2"><BatchIcon /></span>
-                    Batches
-                    <span className="ml-1"><ChevronDownIcon /></span>
-                </button>
-                {isBatchesDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5">
-                        {batchLinks.map(link => (
-                            <DropdownLink key={link.to} to={link.to} onClick={() => { setIsBatchesDropdownOpen(false); setIsMobileMenuOpen(false)}}>
-                                {link.label}
-                            </DropdownLink>
-                        ))}
-                    </div>
-                )}
-              </div>
             </div>
           </div>
           <div className="-mr-2 flex md:hidden">
@@ -137,19 +97,6 @@ const Navbar: React.FC = () => {
                    {link.label}
                  </NavLink>
               ))}
-              <div className="text-gray-300">
-                  <div className="flex items-center px-4 py-2 text-sm">
-                    <span className="mr-3"><BatchIcon /></span>
-                    Batches
-                  </div>
-                  <div className="pl-8">
-                      {batchLinks.map(link => (
-                        <NavLink key={link.to} to={link.to} onClick={() => setIsMobileMenuOpen(false)} className="w-full text-left">
-                           {link.label}
-                         </NavLink>
-                      ))}
-                  </div>
-              </div>
           </div>
         </div>
       )}

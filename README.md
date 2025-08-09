@@ -1,3 +1,18 @@
+# Start Django
+```bash
+git clone <repo-url>
+cd <repo>
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+# only once: first time when you build app in your laptop
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver localhost:8000
+```
+
+# start React
+
+
 ### **Prompt AI**
 
 **create a complete and robust backend for a university's Department Management System using Python with the Django framework and a SQLite database. The frontend of this application is built with React and communicates with the backend via a RESTful API.**
@@ -79,6 +94,6 @@ Next, create the following API endpoints to handle all the necessary CRUD (Creat
 
 *   **CORS (Cross-Origin Resource Sharing):** Enable CORS to allow requests from the React frontend, which will be running on a different port.
 *   **Database Initialization:** Include a script or a command to initialize the SQLite database and create all the necessary tables based on the defined models.
-*   **Dependencies:** Please provide a `requirements.txt` file that lists all the necessary Python packages (e.g., Flask, Flask-SQLAlchemy, Flask-CORS).
+*   **Dependencies:** Please provide a `requirements.txt` file that lists all the necessary Python packages (e.g., Django, Django-SQLAlchemy, Django-CORS).
 
 By following these instructions, you will create a fully functional backend that seamlessly integrates with the provided React frontend, enabling all the features of the Department Management System.
