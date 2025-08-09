@@ -1,65 +1,89 @@
 import React, { useState } from 'react';
-import type { Faculty } from '../types';
 import Card from '../components/Card';
+import type { Faculty } from '../types';
 
 interface FacultyPageProps {
   faculty: Faculty[];
-  onAddFaculty: (facultyMember: Faculty) => void;
+  onAddFaculty: (facultyMember: { id: string, name: string }) => Promise<void>;
 }
 
 const FacultyPage: React.FC<FacultyPageProps> = ({ faculty, onAddFaculty }) => {
   const [name, setName] = useState('');
-  const [facultyId, setFacultyId] = useState('');
+  const [id, setId] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (name && facultyId) {
-      onAddFaculty({ name, id: facultyId });
+    if(name && id) {
+      onAddFaculty({ id, name });
       setName('');
-      setFacultyId('');
+      setId('');
     }
-  };
+  }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div className="lg:col-span-1">
-        <Card title="Add New Faculty">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="facultyName" className="block text-sm font-medium text-gray-300">Name</label>
-              <input type="text" id="facultyName" value={name} onChange={(e) => setName(e.target.value)} className="mt-1 block w-full bg-gray-900 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" required />
-            </div>
-            <div>
-              <label htmlFor="facultyId" className="block text-sm font-medium text-gray-300">Faculty ID</label>
-              <input type="text" id="facultyId" value={facultyId} onChange={(e) => setFacultyId(e.target.value)} className="mt-1 block w-full bg-gray-900 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" required />
-            </div>
-            <button type="submit" className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-gray-800 transition-colors">
-              Add Faculty
-            </button>
-          </form>
-        </Card>
-      </div>
-      <div className="lg:col-span-2">
-        <Card title="Faculty List">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-700">
-              <thead className="bg-gray-700/50">
-                <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Name</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Faculty ID</th>
-                </tr>
-              </thead>
-              <tbody className="bg-gray-800 divide-y divide-gray-700">
-                {faculty.map((member) => (
-                  <tr key={member.id} className="hover:bg-gray-700/50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{member.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{member.id}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Manage Faculty</h1>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <Card>
+            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Faculty List ({faculty.length})</h2>
+             {faculty.length > 0 ? (
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Name</th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Faculty ID</th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                        {faculty.map(f => (
+                        <tr key={f.id}>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{f.name}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{f.id}</td>
+                        </tr>
+                        ))}
+                    </tbody>
+                    </table>
+                </div>
+            ) : (
+                <p className="text-gray-600 dark:text-gray-300">No faculty members added yet.</p>
+            )}
+          </Card>
+        </div>
+        <div>
+          <Card>
+            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Add New Faculty</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="faculty-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
+                <input
+                  type="text"
+                  id="faculty-name"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                  required
+                />
+              </div>
+               <div>
+                <label htmlFor="faculty-id" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Faculty ID</label>
+                <input
+                  type="text"
+                  id="faculty-id"
+                  value={id}
+                  onChange={e => setId(e.target.value)}
+                  className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                  required
+                />
+              </div>
+              <button type="submit" className="w-full bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-primary-700 transition-colors">
+                Add Faculty
+              </button>
+            </form>
+          </Card>
+        </div>
       </div>
     </div>
   );

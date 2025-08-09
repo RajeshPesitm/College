@@ -1,156 +1,115 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import type { Student, Batch } from '../types';
 import Card from '../components/Card';
-import Papa from 'papaparse';
-import { UploadIcon } from '../components/icons/UploadIcon';
-import { LeftArrowIcon } from '../components/icons/LeftArrowIcon';
+import UploadIcon from '../components/icons/UploadIcon';
+import type { Batch, Student } from '../types';
 
-interface ManageBatchStudentsPageProps {
+interface StudentsPageProps {
   batches: Batch[];
   students: Student[];
-  onAddStudents: (students: Omit<Student, 'id' | 'batch'>[], batchId: string) => Promise<void>;
+  onAddStudents: (newStudents: { name: string, usn: string }[], batchId: string) => Promise<void>;
   onClearStudents: (batchId: string) => Promise<void>;
 }
 
-const ManageBatchStudentsPage: React.FC<ManageBatchStudentsPageProps> = ({ batches, students, onAddStudents, onClearStudents }) => {
+const StudentsPage: React.FC<StudentsPageProps> = ({ batches, students, onAddStudents, onClearStudents }) => {
   const { batchId } = useParams<{ batchId: string }>();
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [pastedData, setPastedData] = useState('');
 
-  const currentBatch = useMemo(() => {
-    if (!batchId) return null;
-    return batches.find(b => b.id === Number(batchId));
-  }, [batches, batchId]);
+  const currentBatch = useMemo(() => batches.find(b => b.id === Number(batchId)), [batches, batchId]);
+  const batchStudents = useMemo(() => students.filter(s => s.batch === Number(batchId)).sort((a,b) => a.name.localeCompare(b.name)), [students, batchId]);
 
-  const studentsInBatch = useMemo(() => {
-    if (!batchId) return [];
-    return students.filter(s => s.batch === Number(batchId));
-  }, [students, batchId]);
-  
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!batchId) return;
+  const handleImport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!pastedData.trim() || !batchId) return;
 
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const lines = pastedData.trim().split('\n');
+    const newStudents = lines.map(line => {
+      const [name, usn] = line.split(/[,\t]/).map(s => s.trim());
+      return { name, usn };
+    }).filter(s => s.name && s.usn);
 
-    setIsProcessing(true);
-    
-    Papa.parse<Omit<Student, 'id' | 'batch'>>(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: async (results) => {
-        if (!results.data.length || !('name' in results.data[0]) || !('usn' in results.data[0])) {
-          alert('Invalid CSV format. Please ensure the headers are "name" and "usn".');
-          setIsProcessing(false);
-          event.target.value = '';
-          return;
-        }
-
-        const newStudents = results.data
-          .map(row => ({
-            name: row.name?.trim(),
-            usn: row.usn?.trim(),
-          }))
-          .filter(student => student.name && student.usn);
-
-        if (newStudents.length > 0) {
-          await onAddStudents(newStudents, batchId);
-        } else {
-          alert('No valid student data found in the file.');
-        }
-
-        setIsProcessing(false);
-        event.target.value = '';
-      },
-      error: (error) => {
-        alert(`Error parsing file: ${error.message}`);
-        setIsProcessing(false);
-        event.target.value = '';
-      }
-    });
+    if(newStudents.length > 0) {
+      await onAddStudents(newStudents, batchId);
+      setPastedData('');
+    } else {
+      alert("Could not parse any students. Ensure each line has 'Name,USN' or 'Name\tUSN'.");
+    }
   };
 
-  const handleClearStudents = async () => {
-    if (!batchId) return;
-    if (confirm(`Are you sure you want to delete all ${studentsInBatch.length} students from this batch? This action cannot be undone.`)) {
-        setIsProcessing(true);
-        await onClearStudents(batchId);
-        setIsProcessing(false);
+  const handleClear = () => {
+    if (batchId && window.confirm(`Are you sure you want to delete all ${batchStudents.length} students from this batch? This action cannot be undone.`)) {
+      onClearStudents(batchId);
     }
   }
 
   if (!currentBatch) {
-    return (
-      <Card title="Error: Batch Not Found">
-        <div className="text-center">
-          <p className="text-gray-400">The batch you are looking for does not exist.</p>
-          <Link to="/batches/create" className="inline-flex items-center mt-4 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-gray-800">
-            <LeftArrowIcon />
-            <span className="ml-2">Go Back to Batches</span>
-          </Link>
-        </div>
-      </Card>
-    );
+    return <div className="text-center text-gray-500 dark:text-gray-400">Batch not found. <Link to="/create-batch" className="text-primary-500 hover:underline">Go to Batches</Link></div>;
   }
 
   return (
-    <div className="space-y-8">
-      <Link to="/batches/create" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors group">
-        <LeftArrowIcon className="h-5 w-5 mr-2 transition-transform group-hover:-translate-x-1" />
-        Back to Batch Selection
-      </Link>
-      <Card title={`Manage Students for Semester ${currentBatch.semester} (${currentBatch.year})`}>
-        <div className="space-y-6">
-           {/* --- Upload Section --- */}
-          <div>
-            <h4 className="text-lg font-medium text-gray-200 mb-2">Import from CSV</h4>
-            <p className="text-sm text-gray-400 mb-4">
-                File must have headers: <code>name,usn</code>.
-            </p>
-            <label htmlFor="csv-upload" className={`w-full sm:w-auto cursor-pointer bg-secondary text-white py-2 px-4 rounded-md hover:bg-gray-600 transition-colors inline-flex items-center justify-center ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                <UploadIcon />
-                {isProcessing ? 'Processing...' : 'Upload Students CSV'}
-            </label>
-            <input id="csv-upload" type="file" accept=".csv" onChange={handleFileUpload} className="hidden" disabled={isProcessing} />
-          </div>
-
-          {/* --- Student List Section --- */}
-          <div className="pt-6 border-t border-gray-700">
-            <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-4">
-              <h3 className="text-xl font-semibold text-white">Student List ({studentsInBatch.length})</h3>
-              {studentsInBatch.length > 0 && (
-                  <button onClick={handleClearStudents} disabled={isProcessing} className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm">
-                      Clear All Students
-                  </button>
-              )}
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-700">
-                <thead className="bg-gray-700/50">
-                  <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Name</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">USN</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-gray-800 divide-y divide-gray-700">
-                  {studentsInBatch.length > 0 ? (
-                      studentsInBatch.map((student) => (
-                        <tr key={student.id} className="hover:bg-gray-700/50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{student.name}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{student.usn}</td>
-                        </tr>
-                      ))
-                  ) : (
-                      <tr><td colSpan={2} className="text-center py-8 text-gray-400">No students found for this batch. Upload a CSV to add them.</td></tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
+    <div className="space-y-6">
+      <div className="flex flex-wrap justify-between items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Manage Students</h1>
+          <p className="text-gray-500 dark:text-gray-400">Semester {currentBatch.semester}, {currentBatch.year}</p>
         </div>
-      </Card>
+        {batchStudents.length > 0 && (
+          <button onClick={handleClear} className="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-red-700 transition-colors">
+            Clear All Students
+          </button>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+            <Card>
+                <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Student List ({batchStudents.length})</h2>
+                {batchStudents.length > 0 ? (
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead className="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Name</th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">USN</th>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                            {batchStudents.map(student => (
+                            <tr key={student.id}>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{student.name}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{student.usn}</td>
+                            </tr>
+                            ))}
+                        </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    <p className="text-gray-600 dark:text-gray-300">No students added to this batch yet. Use the form to import them.</p>
+                )}
+            </Card>
+        </div>
+        <div>
+            <Card>
+                <form onSubmit={handleImport}>
+                <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-white">Import Students</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Paste student data below, one per line, with name and USN separated by a comma or tab.</p>
+                <textarea
+                    value={pastedData}
+                    onChange={(e) => setPastedData(e.target.value)}
+                    rows={10}
+                    className="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                    placeholder="John Doe,1AB22CD001&#10;Jane Smith,1AB22CD002"
+                />
+                <button type="submit" className="mt-4 w-full flex items-center justify-center gap-2 bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-primary-700 transition-colors">
+                    <UploadIcon className="w-5 h-5" />
+                    Import
+                </button>
+                </form>
+            </Card>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default ManageBatchStudentsPage;
+export default StudentsPage;

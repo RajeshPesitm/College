@@ -1,156 +1,115 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import type { Subject, Batch } from '../types';
 import Card from '../components/Card';
-import Papa from 'papaparse';
-import { UploadIcon } from '../components/icons/UploadIcon';
-import { LeftArrowIcon } from '../components/icons/LeftArrowIcon';
+import UploadIcon from '../components/icons/UploadIcon';
+import type { Batch, Subject } from '../types';
 
-interface ManageBatchSubjectsPageProps {
+interface SubjectsPageProps {
   batches: Batch[];
   subjects: Subject[];
-  onAddSubjects: (subjects: Omit<Subject, 'batch'>[], batchId: string) => Promise<void>;
+  onAddSubjects: (newSubjects: { id: string, name: string }[], batchId: string) => Promise<void>;
   onClearSubjects: (batchId: string) => Promise<void>;
 }
 
-const ManageBatchSubjectsPage: React.FC<ManageBatchSubjectsPageProps> = ({ batches, subjects, onAddSubjects, onClearSubjects }) => {
+const SubjectsPage: React.FC<SubjectsPageProps> = ({ batches, subjects, onAddSubjects, onClearSubjects }) => {
   const { batchId } = useParams<{ batchId: string }>();
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [pastedData, setPastedData] = useState('');
 
-  const currentBatch = useMemo(() => {
-    if (!batchId) return null;
-    return batches.find(b => b.id === Number(batchId));
-  }, [batches, batchId]);
+  const currentBatch = useMemo(() => batches.find(b => b.id === Number(batchId)), [batches, batchId]);
+  const batchSubjects = useMemo(() => subjects.filter(s => s.batch === Number(batchId)).sort((a, b) => a.id.localeCompare(b.id)), [subjects, batchId]);
 
-  const subjectsInBatch = useMemo(() => {
-    if (!batchId) return [];
-    return subjects.filter(s => s.batch === Number(batchId));
-  }, [subjects, batchId]);
+  const handleImport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!pastedData.trim() || !batchId) return;
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!batchId) return;
-    
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const lines = pastedData.trim().split('\n');
+    const newSubjects = lines.map(line => {
+      const [id, name] = line.split(/[,\t]/).map(s => s.trim());
+      return { id, name };
+    }).filter(s => s.id && s.name);
 
-    setIsProcessing(true);
-    
-    Papa.parse<Omit<Subject, 'batch'>>(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: async (results) => {
-        if (!results.data.length || !('id' in results.data[0]) || !('name' in results.data[0])) {
-          alert('Invalid CSV format. Please ensure the headers are "id" and "name".');
-          setIsProcessing(false);
-          event.target.value = '';
-          return;
-        }
-
-        const newSubjects = results.data
-          .map(row => ({
-            id: row.id?.trim(),
-            name: row.name?.trim(),
-          }))
-          .filter(subject => subject.id && subject.name);
-
-        if (newSubjects.length > 0) {
-          await onAddSubjects(newSubjects, batchId);
-        } else {
-          alert('No valid subject data found in the file.');
-        }
-
-        setIsProcessing(false);
-        event.target.value = '';
-      },
-      error: (error) => {
-        alert(`Error parsing file: ${error.message}`);
-        setIsProcessing(false);
-        event.target.value = '';
-      }
-    });
-  };
-
-  const handleClearSubjects = async () => {
-    if (!batchId) return;
-    if (confirm(`Are you sure you want to delete all ${subjectsInBatch.length} subjects from this batch? This action cannot be undone.`)) {
-      setIsProcessing(true);
-      await onClearSubjects(batchId);
-      setIsProcessing(false);
+    if(newSubjects.length > 0) {
+      await onAddSubjects(newSubjects, batchId);
+      setPastedData('');
+    } else {
+      alert("Could not parse any subjects. Ensure each line has 'SubjectCode,SubjectName' or 'SubjectCode\tSubjectName'.");
     }
   };
+  
+  const handleClear = () => {
+    if (batchId && window.confirm(`Are you sure you want to delete all ${batchSubjects.length} subjects from this batch? This action cannot be undone.`)) {
+      onClearSubjects(batchId);
+    }
+  }
 
   if (!currentBatch) {
-    return (
-      <Card title="Error: Batch Not Found">
-        <div className="text-center">
-          <p className="text-gray-400">The batch you are looking for does not exist.</p>
-          <Link to="/batches/create" className="inline-flex items-center mt-4 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-gray-800">
-            <LeftArrowIcon />
-            <span className="ml-2">Go Back to Batches</span>
-          </Link>
-        </div>
-      </Card>
-    );
+    return <div className="text-center text-gray-500 dark:text-gray-400">Batch not found. <Link to="/create-batch" className="text-primary-500 hover:underline">Go to Batches</Link></div>;
   }
 
   return (
-    <div className="space-y-8">
-        <Link to="/batches/create" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors group">
-            <LeftArrowIcon className="h-5 w-5 mr-2 transition-transform group-hover:-translate-x-1" />
-            Back to Batch Selection
-        </Link>
-        <Card title={`Manage Subjects for Semester ${currentBatch.semester} (${currentBatch.year})`}>
-            <div className="space-y-6">
-                {/* --- Upload Section --- */}
-                <div>
-                    <h4 className="text-lg font-medium text-gray-200 mb-2">Import from CSV</h4>
-                    <p className="text-sm text-gray-400 mb-4">
-                    File must have headers: <code>id,name</code>.
-                    </p>
-                    <label htmlFor="csv-upload" className={`w-full sm:w-auto cursor-pointer bg-secondary text-white py-2 px-4 rounded-md hover:bg-gray-600 transition-colors inline-flex items-center justify-center ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                    <UploadIcon />
-                    {isProcessing ? 'Processing...' : 'Upload Subjects CSV'}
-                    </label>
-                    <input id="csv-upload" type="file" accept=".csv" onChange={handleFileUpload} className="hidden" disabled={isProcessing} />
-                </div>
-                
-                {/* --- Subject List Section --- */}
-                <div className="pt-6 border-t border-gray-700">
-                    <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-4">
-                        <h3 className="text-xl font-semibold text-white">Subject List ({subjectsInBatch.length})</h3>
-                        {subjectsInBatch.length > 0 && (
-                            <button onClick={handleClearSubjects} disabled={isProcessing} className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm">
-                                Clear All Subjects
-                            </button>
-                        )}
-                    </div>
+    <div className="space-y-6">
+      <div className="flex flex-wrap justify-between items-center gap-4">
+        <div>
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Manage Subjects</h1>
+            <p className="text-gray-500 dark:text-gray-400">Semester {currentBatch.semester}, {currentBatch.year}</p>
+        </div>
+        {batchSubjects.length > 0 && (
+             <button onClick={handleClear} className="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-red-700 transition-colors">
+                Clear All Subjects
+            </button>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+            <Card>
+                <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Subject List ({batchSubjects.length})</h2>
+                {batchSubjects.length > 0 ? (
                     <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-700">
-                        <thead className="bg-gray-700/50">
+                        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead className="bg-gray-50 dark:bg-gray-700">
                             <tr>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Name</th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Subject ID</th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Code</th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Name</th>
                             </tr>
                         </thead>
-                        <tbody className="bg-gray-800 divide-y divide-gray-700">
-                            {subjectsInBatch.length > 0 ? (
-                                subjectsInBatch.map((subject) => (
-                                <tr key={subject.id} className="hover:bg-gray-700/50">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{subject.name}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{subject.id}</td>
-                                </tr>
-                                ))
-                            ) : (
-                                <tr><td colSpan={2} className="text-center py-8 text-gray-400">No subjects found for this batch. Upload a CSV to add them.</td></tr>
-                            )}
+                        <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                            {batchSubjects.map(subject => (
+                            <tr key={subject.id}>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{subject.id}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{subject.name}</td>
+                            </tr>
+                            ))}
                         </tbody>
                         </table>
                     </div>
-                </div>
-            </div>
-        </Card>
+                ) : (
+                    <p className="text-gray-600 dark:text-gray-300">No subjects added to this batch yet. Use the form to import them.</p>
+                )}
+            </Card>
+        </div>
+        <div>
+            <Card>
+                <form onSubmit={handleImport}>
+                <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-white">Import Subjects</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Paste subject data below, one per line, with code and name separated by a comma or tab.</p>
+                <textarea
+                    value={pastedData}
+                    onChange={(e) => setPastedData(e.target.value)}
+                    rows={10}
+                    className="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                    placeholder="22CS51,Database Systems&#10;22CS52,Computer Networks"
+                />
+                <button type="submit" className="mt-4 w-full flex items-center justify-center gap-2 bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-primary-700 transition-colors">
+                    <UploadIcon className="w-5 h-5" />
+                    Import
+                </button>
+                </form>
+            </Card>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default ManageBatchSubjectsPage;
+export default SubjectsPage;

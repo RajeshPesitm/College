@@ -1,37 +1,40 @@
+// This file is for global type definitions.
+
 export interface Batch {
   id: number;
   year: number;
   semester: number;
+  academic_year: string;
 }
 
 export interface Student {
   id: number;
-  name: string;
   usn: string;
-  batch: number;
+  name: string;
+  batch: number; // batch id
 }
 
 export interface Faculty {
-  id:string;
+  id: string;
   name: string;
 }
 
 export interface Subject {
   id: string;
   name: string;
-  batch: number;
+  batch: number; // batch id
 }
 
 export interface SubjectAllotment {
   id: number;
-  faculty: string;
-  subject: string;
+  faculty: Faculty;
+  subject: Subject;
 }
 
 export interface AttendanceRecord {
-  id: number;
-  student: number;
-  subject: string;
-  date: string; // YYYY-MM-DD
-  status: 'Present' | 'Absent';
+    id?: number;
+    student: number; // student id
+    subject: string; // subject id
+    date: string; // YYYY-MM-DD
+    status: 'present' | 'absent';
 }

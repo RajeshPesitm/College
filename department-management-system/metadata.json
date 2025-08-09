@@ -1,6 +1,6 @@
 {
   "name": "Department Management System",
-  "description": "A React application to manage students, faculty, subjects, and their allotments within a department. It features separate pages for each management task and a clean, modern user interface.",
+  "description": "A comprehensive system to manage students, faculty, subjects, and other departmental activities.",
   "requestFramePermissions": [],
   "prompt": ""
 }

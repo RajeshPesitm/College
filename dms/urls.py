@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from .views import stats_view # 👈 Import the stats_view function: see if you can remove this safley
+
 
 urlpatterns = [
     path('batches/', views.BatchListCreateView.as_view()),
@@ -15,4 +17,6 @@ urlpatterns = [
 
     path('allotments/', views.AllotmentListCreateView.as_view()),
     path('attendance/', views.SubmitAttendanceView.as_view()),
+    path('stats/', stats_view),  # 👈 Add this line: used in frontend DashBoard
 ]
+

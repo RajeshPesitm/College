@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import *
 from .serializers import *
+from rest_framework.decorators import api_view
 
 # Batch
 class BatchListCreateView(generics.ListCreateAPIView):
@@ -66,3 +67,13 @@ class SubmitAttendanceView(APIView):
             serializer.save()
             return Response({"message": "Attendance saved."}, status=201)
         return Response(serializer.errors, status=400)
+
+@api_view(['GET'])
+def stats_view(request):
+    data = {
+        'students': Student.objects.count(),
+        'faculty': Faculty.objects.count(),
+        'subjects': Subject.objects.count(),
+        'batches': Batch.objects.count(),
+    }
+    return Response(data)
