@@ -6,6 +6,52 @@ npm start
 
 # Angular for Front end
 ### install node.js+npm using curl
+1. check does node.js exist already
+```bash
+node -v && npm -v
+```
+2. if there is any problem in existing istallation of node.js, then remove it
+```bash
+sudo apt remove nodejs npm
+sudo apt autoremove
+```
+Also try to clean everything
+```bash
+sudo apt-get remove --purge nodejs npm
+sudo apt-get autoremove
+```
+
+3. Set official repository using curl (instalin stable node.js 18, you can try latest with AI help)
+```bash
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt install -y nodejs
+```
+
+So the summary looks like this:
+```bash
+# Check current versions
+node -v && npm -v
+
+# Remove existing versions if needed
+sudo apt remove nodejs npm
+sudo apt autoremove
+sudo apt-get remove --purge nodejs npm
+sudo apt-get autoremove
+
+# Add official Node.js repository and install stable version
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt install -y nodejs
+
+# Optionally update npm to the latest version
+sudo npm install -g npm@latest
+
+# Install build tools (optional)
+sudo apt install -y build-essential
+
+# Verify installation
+node -v && npm -v
+
+```
 
 ### Create Angular App
 ```bash
