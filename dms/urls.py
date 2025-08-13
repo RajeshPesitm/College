@@ -19,6 +19,7 @@ urlpatterns = [
 
     path('allotments/', views.AllotmentListCreateView.as_view()),
     path('attendance/', views.SubmitAttendanceView.as_view()),
+    path('attendance/view/', views.AttendanceView.as_view()),
     path('stats/', stats_view),
 
 ]

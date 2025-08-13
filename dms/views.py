@@ -7,8 +7,7 @@ from rest_framework.views import APIView
 from .models import *
 from .serializers import *
 from rest_framework.decorators import api_view
-import csv
-from io import StringIO
+
 
 
 # Batch
@@ -38,8 +37,6 @@ class ClearStudentsFromBatch(APIView):
 class FacultyListCreateView(generics.ListCreateAPIView):
     queryset = Faculty.objects.all()
     serializer_class = FacultySerializer
-
-# dms/views.py
 
 class AddFaculties(APIView):
     def post(self, request):
@@ -88,6 +85,11 @@ class AllotmentListCreateView(generics.ListCreateAPIView):
     serializer_class = SubjectAllotmentSerializer
 
 # Attendance
+class AttendanceView(generics.ListCreateAPIView):
+    queryset = AttendanceRecord.objects.all()
+    serializer_class = AttendanceRecordSerializer
+
+
 class SubmitAttendanceView(APIView):
     def post(self, request):
         serializer = AttendanceRecordSerializer(data=request.data, many=True)

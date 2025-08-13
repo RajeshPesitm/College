@@ -10,6 +10,11 @@ python manage.py migrate
 python manage.py runserver localhost:8000
 ```
 
+# Django admin
+```
+username: pc , password: admin also try admin123 etc
+```
+
 # start React
 
 
