@@ -6,7 +6,7 @@ import type { Faculty} from '../types';
 
 interface FacultyPageProps {
     faculty: Faculty[];
-    onAddFaculty: (faculties: Omit<Faculty, 'id'>[]) => Promise<void>;
+    onAddFaculty: (faculties: Faculty[]) => Promise<void>;
     onClearFaculty: () => Promise<void>;
 }
 
@@ -19,7 +19,7 @@ const FacultyPage: React.FC<FacultyPageProps> = ({ faculty, onAddFaculty, onClea
 
         setIsProcessing(true);
 
-        Papa.parse<Omit<Faculty, 'id'>>(file, {
+        Papa.parse<Faculty>(file, {
             header: true,
             skipEmptyLines: true,
             complete: async (results) => {

@@ -152,21 +152,23 @@ const App: React.FC = () => {
         }
     };
 
-    const addFaculties = async (newFaculties: Omit<Faculty, 'id'>[]) => {
-    console.log("API CALL: POST /api/faculty/bulk_add/", newFaculties);
-    try {
-        const response = await fetch(`${API_BASE_URL}/faculty/bulk_add/`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newFaculties)
-        });
-        const addedFaculties = await handleApiResponse(response);
-        setFaculty(prev => [...prev, ...addedFaculties]);
-        alert(`Successfully added ${addedFaculties.length} new faculties.`);
-    } catch (error: any) {
-        alert(`Error: ${error.message}`);
-    }
-};
+    const addFaculties = async (newFaculties: Faculty[]) => {
+        console.log("API CALL: POST /api/faculty/bulk_add/", newFaculties);
+        try {
+            const response = await fetch(`${API_BASE_URL}/faculty/bulk_add/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newFaculties)
+            });
+            await handleApiResponse(response);
+            // Refetch the entire list to ensure consistency
+            const facultyRes = await fetch(`${API_BASE_URL}/faculty/`);
+            setFaculty(await facultyRes.json());
+            alert(`Faculty list updated successfully.`);
+        } catch (error: any) {
+            alert(`Error: ${error.message}`);
+        }
+    };
 
 // Clear All Faculties (API handler)
 const clearFaculties = async () => {
