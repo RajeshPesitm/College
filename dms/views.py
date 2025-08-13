@@ -7,6 +7,9 @@ from rest_framework.views import APIView
 from .models import *
 from .serializers import *
 from rest_framework.decorators import api_view
+import csv
+from io import StringIO
+
 
 # Batch
 class BatchListCreateView(generics.ListCreateAPIView):
@@ -35,6 +38,31 @@ class ClearStudentsFromBatch(APIView):
 class FacultyListCreateView(generics.ListCreateAPIView):
     queryset = Faculty.objects.all()
     serializer_class = FacultySerializer
+
+# dms/views.py
+
+class AddFaculties(APIView):
+    def post(self, request):
+        # Get the data from the request (it could be a CSV or JSON, depending on how you want to handle it)
+        data = request.data  # Expecting JSON body containing multiple faculty items
+        
+        faculties = []
+        for item in data:
+            name = item.get('name')
+            id = item.get('id')
+            
+            if name and id:
+                faculties.append(Faculty(id=id, name=name))
+        
+        # Bulk create all faculties in one query
+        Faculty.objects.bulk_create(faculties)
+
+        return Response({"message": f"{len(faculties)} faculties added successfully."}, status=status.HTTP_201_CREATED)
+
+class ClearFaculties(APIView):
+    def delete(self, request):
+        Faculty.objects.all().delete()  # This will delete all faculties, similar to the student deletion approach.
+        return Response({"message": "All faculties have been deleted."}, status=status.HTTP_204_NO_CONTENT)
 
 # Subjects
 class SubjectListView(generics.ListAPIView):

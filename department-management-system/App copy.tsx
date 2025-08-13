@@ -122,97 +122,9 @@ const App: React.FC = () => {
         }
     };
 
-    const addSubjectsToBatch = async (newSubjects: Omit<Subject, 'batch'>[], batchId: string) => {
-        console.log(`API CALL: POST /api/batches/${batchId}/add_subjects/`, newSubjects);
-        try {
-            const response = await fetch(`${API_BASE_URL}/batches/${batchId}/add_subjects/`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newSubjects)
-            });
-            const addedSubjects = await handleApiResponse(response);
-            // Refetch all subjects to get the most up-to-date list
-            const subjectsRes = await fetch(`${API_BASE_URL}/subjects/`);
-            setSubjects(await subjectsRes.json());
-            alert(`Successfully processed subjects. Added ${addedSubjects.length} new subjects.`);
-        } catch (error: any) {
-            alert(`Error: ${error.message}`);
-        }
-    };
+...
+...
 
-    const clearSubjectsFromBatch = async (batchId: string) => {
-        console.log(`API CALL: DELETE /api/batches/${batchId}/clear_subjects/`);
-        try {
-            const response = await fetch(`${API_BASE_URL}/batches/${batchId}/clear_subjects/`, { method: 'DELETE' });
-            await handleApiResponse(response);
-            setSubjects(prev => prev.filter(s => s.batch !== Number(batchId)));
-            alert(`All subjects from the selected batch have been cleared.`);
-        } catch (error: any) {
-            alert(`Error: ${error.message}`);
-        }
-    };
-
-    const addFaculties = async (newFaculties: Omit<Faculty, 'id'>[]) => {
-    console.log("API CALL: POST /api/faculty/bulk_add/", newFaculties);
-    try {
-        const response = await fetch(`${API_BASE_URL}/faculty/bulk_add/`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newFaculties)
-        });
-        const addedFaculties = await handleApiResponse(response);
-        setFaculty(prev => [...prev, ...addedFaculties]);
-        alert(`Successfully added ${addedFaculties.length} new faculties.`);
-    } catch (error: any) {
-        alert(`Error: ${error.message}`);
-    }
-};
-
-// Clear All Faculties (API handler)
-const clearFaculties = async () => {
-    console.log("API CALL: DELETE /api/faculty/clear_all/");
-    try {
-        const response = await fetch(`${API_BASE_URL}/faculty/clear_all/`, { method: 'DELETE' });
-        await handleApiResponse(response);
-        setFaculty([]);
-        alert('All faculties have been cleared.');
-    } catch (error: any) {
-        alert(`Error: ${error.message}`);
-    }
-};
-
-
-
-    const addAllotment = async (allotment: { facultyId: string, subjectId: string }) => {
-        const payload = { faculty: allotment.facultyId, subject: allotment.subjectId };
-        console.log("API CALL: POST /api/allotments/", payload);
-        try {
-            const response = await fetch(`${API_BASE_URL}/allotments/`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const newAllotment = await handleApiResponse(response);
-            setAllotments(prev => [...prev, newAllotment]);
-        } catch (error: any) {
-            alert(`Error: ${error.message}`);
-        }
-    };
-
-    const addAttendanceRecords = async (records: Omit<AttendanceRecord, 'id'>[]) => {
-        console.log("API CALL: POST /api/attendance/", records);
-        try {
-            const response = await fetch(`${API_BASE_URL}/attendance/`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(records)
-            });
-            await handleApiResponse(response);
-            alert(`${records.length} attendance records submitted successfully!`);
-        } catch (error: any) {
-            alert(`Error: ${error.message}`);
-        }
-    };
 
     if (loading) {
         return (
@@ -232,7 +144,7 @@ const clearFaculties = async () => {
                         <Route path="/batches/create" element={<CreateBatchPage onAddBatch={addBatch} batches={batches} />} />
                         <Route path="/batches/students/:batchId" element={<ManageBatchStudentsPage batches={batches} students={students} onAddStudents={addStudentsToBatch} onClearStudents={clearStudentsFromBatch} />} />
                         <Route path="/batches/subjects/:batchId" element={<ManageBatchSubjectsPage batches={batches} subjects={subjects} onAddSubjects={addSubjectsToBatch} onClearSubjects={clearSubjectsFromBatch} />} />
-                        <Route path="/faculty" element={<FacultyPage faculty={faculty} onAddFaculty={addFaculties} onClearFaculty={clearFaculties} />} />
+                        <Route path="/faculty" element={<FacultyPage faculty={faculty} onAddFaculty={addFaculty} onClearFaculty={clearFaculty} />} />
                         <Route path="/allotment" element={<AllotmentPage faculty={faculty} subjects={subjects} batches={batches} allotments={allotments} onAddAllotment={addAllotment} />} />
                         <Route path="/attendance" element={<AttendancePage students={students} subjects={subjects} batches={batches} onAddAttendanceRecords={addAttendanceRecords} />} />
                     </Routes>

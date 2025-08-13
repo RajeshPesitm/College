@@ -10,6 +10,8 @@ urlpatterns = [
     path('batches/<int:batch_id>/clear_students/', views.ClearStudentsFromBatch.as_view()),
 
     path('faculty/', views.FacultyListCreateView.as_view()),
+    path('faculty/bulk_add/', views.AddFaculties.as_view(), name='bulk_add_faculty'),
+    path('faculty/clear_all/', views.ClearFaculties.as_view(), name='clear_all_faculty'),
 
     path('subjects/', views.SubjectListView.as_view()),
     path('batches/<int:batch_id>/add_subjects/', views.AddSubjectsToBatch.as_view()),
@@ -17,6 +19,6 @@ urlpatterns = [
 
     path('allotments/', views.AllotmentListCreateView.as_view()),
     path('attendance/', views.SubmitAttendanceView.as_view()),
-    path('stats/', stats_view),  # 👈 Add this line: used in frontend DashBoard
+    path('stats/', stats_view),
 
 ]
