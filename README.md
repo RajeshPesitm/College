@@ -1,3 +1,38 @@
+### 📝 Summary: Install Python and pip on Ubuntu 22.04
+
+1. **Update packages**
+
+   ```bash
+   sudo apt update
+   ```
+
+2. **Install Python 3**
+
+   ```bash
+   sudo apt install python3
+   ```
+
+3. **Install pip for Python 3**
+
+   ```bash
+   sudo apt install python3-pip
+   ```
+
+4. **(Optional) Create `python` and `pip` shortcuts**
+
+   ```bash
+   sudo ln -s /usr/bin/python3 /usr/bin/python
+   sudo ln -s /usr/bin/pip3 /usr/bin/pip
+   ```
+
+5. **Verify installations**
+
+   ```bash
+   python --version
+   pip --version
+   ```
+
+
 # Start Django
 ```bash
 git clone <repo-url>
